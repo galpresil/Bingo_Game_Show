@@ -2,7 +2,7 @@
 
 A fully interactive, web-based Bingo game designed for events, workshops, and social gatherings. 
 <br> This tool allows users to create custom Bingo games using their own images and generate printable cards instantly.
-<br> 🔗 [To the Bingo Game >>](https://galpresil.github.io/Bingo_Game_Show/)
+<br><br> 🔗 [To the Bingo Game >>](https://galpresil.github.io/Bingo_Game_Show/)
 
 ## Key Features
 * **Custom Image Upload**: Upload any set of images to use as your Bingo pool.
