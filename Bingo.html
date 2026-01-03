@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bingo Game Show</title>
+
+    <!-- BrowserLogo -->
+    <link rel="icon" href="Logo/BrowserLogo.png" type="image/png">
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Turquoise Theme (Main) */
+            --primary-gradient: linear-gradient(135deg, #2980b9 0%, #00897b 100%); 
+            --dark-teal: #00897b;
+            --shadow-teal: #004d40;
+            
+            /* Reset Modal Colors */
+            --reset-main: #c0392b;       
+            --reset-hover: #e74c3c;
+
+            /* Draw Button Pastel Blue Theme */
+            --draw-btn-bg: #81a6ab; 
+            --draw-btn-hover: #558293;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: #eaf4fc;
+            height: 100dvh; 
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- Hamburger Menu Button --- */
+        #menu-toggle-btn {
+            position: fixed; top: 15px; 
+            right: 15px !important; left: auto !important; /* Always on the right */
+            width: 48px; height: 48px; 
+            border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            background: white; color: #7f8c8d; font-size: 1.5rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, color 0.2s, box-shadow 0.2s;
+            z-index: 20000; 
+        }
+        #menu-toggle-btn:hover { transform: scale(1.05); color: #555; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        
+        /* --- Dropdown Menu Items --- */
+        .menu-items-wrapper {
+            position: fixed; top: 15px; 
+            right: 75px !important; left: auto !important; /* Always on the right */
+            z-index: 19000;
+            background: white; border-radius: 50px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 0; height: 48px; max-width: 0; opacity: 0; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            
+            direction: ltr !important; /* Maintains button order */
+            flex-direction: row; 
+            justify-content: flex-end; 
+        }
+        .menu-items-wrapper.open { max-width: 700px; opacity: 1; padding: 0 15px; }
+
+        .menu-items-wrapper.game-over-mode {
+            max-width: 100px !important; opacity: 1 !important;
+            padding: 0 5px !important; 
+            right: 15px !important; 
+            background: transparent; box-shadow: none; overflow: visible;
+        }
+
+        /* Language Toggle - Always on the left */
+        .lang-btn-container { 
+            position: absolute; top: 15px; z-index: 9999; 
+            left: 15px !important; right: auto !important;
+        }
+
+        .top-btn {
+            width: 36px; height: 36px; 
+            border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
+            background: #f0f0f0; color: #555; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .top-btn:hover { transform: scale(1.1); background: #e0e0e0; }
+        .top-btn:active { transform: scale(0.95); }
+        .top-btn:disabled { 
+            opacity: 0.3; cursor: not-allowed; transform: none; background: #ddd; color: #aaa;
+        }
+        .top-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        #info-btn { color: var(--dark-teal); background: #e0f2f1; }
+        #pdf-btn { color: #e67e22; background: #fff0e0; }
+        #upload-btn { color: #3498db; background: #e0f0ff; }
+        #reset-btn { color: #e74c3c; background: #ffe0e0; }
+        #fullscreen-btn { color: #455a64; background: #eceff1; } 
+        #lang-btn { background: transparent; box-shadow: none; font-size: 1rem; width: auto; height: auto; }
+        #lang-btn:hover { background: transparent; transform: scale(1.2); }
+
+        #grid-select {
+            padding: 0 12px; font-family: 'Rubik', sans-serif; font-weight: bold;
+            border-radius: 20px; border: 2px solid #eee; background: white;
+            color: #333; outline: none; cursor: pointer; height: 36px; font-size: 1rem;
+            flex-shrink: 0;
+        }
+        #grid-select:disabled { background: #eee; color: #999; cursor: not-allowed; }
+
+        /* --- Game Center Stage --- */
+        .game-center {
+            position: relative; flex-grow: 1; width: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 30px; 
+        }
+
+        #bingo-ball {
+            width: min(70vmin, 450px); height: min(70vmin, 450px);
+            background: #ffffff; border-radius: 20%; 
+            position: relative; z-index: 10;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.2); 
+            border: 8px solid #fff; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center;
+            padding: 25px; transition: all 0.3s ease-out;
+        }
+
+        /*Caption Style */
+        #image-caption {
+            position: absolute;
+            top: 0;               
+            background: rgba(142, 156, 176, 0.55); 
+            color: white;
+            padding: 10px 25px;
+            border-radius: 0px 0px 15px 15px; 
+            font-weight: 900;
+            font-size: 1.4rem;
+            z-index: 20;
+            width: 100%;        
+            max-width: 100%;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .pulsing { transform: scale(0.92); opacity: 0.7; }
+
+        #current-image { width: 100%; height: 100%; object-fit: contain; display: none; }
+        #placeholder-text { font-size: 15vmin; color: #e0e0e0; font-weight: 900; user-select: none; }
+
+        /* Game End Message */
+        #end-game-message {
+            font-size: 4rem; font-weight: 900; text-align: center;
+            color: var(--dark-teal);
+            text-shadow: 0 4px 20px rgba(255,255,255,0.8), 0 0 10px rgba(0,0,0,0.1);
+            z-index: 15; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 20px; line-height: 1.2; width: 90%;
+        }
+
+        .modern-button-container { 
+            position: relative; z-index: 30; margin-top: -35px; 
+            display: flex; justify-content: center; 
+        }
+
+        #draw-btn {
+            background: var(--draw-btn-bg); color: white; border: none;
+            font-family: 'Rubik', sans-serif; font-size: 2.2rem; font-weight: 900;
+            cursor: pointer; padding: 15px 60px; border-radius: 25px;
+            box-shadow: 0 8px 20px rgba(129, 166, 171, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            text-shadow: 0 2px 2px rgba(0,0,0,0.2);
+            transition: all 0.2s ease; transform: translateY(0);
+            border: 3px solid rgba(255,255,255,0.1);
+        }
+        #draw-btn:active, #draw-btn.pressed { 
+            background: #4a6b72;
+            transform: translateY(2px); 
+            box-shadow: 0 2px 5px rgba(129, 166, 171, 0.3), inset 0 4px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        #draw-btn:hover { 
+            background: var(--draw-btn-hover); 
+            filter: none;
+            box-shadow: 0 12px 25px rgba(129, 166, 171, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        #draw-btn:disabled { 
+            background: #bdc3c7; color: #ecf0f1; cursor: not-allowed; 
+            box-shadow: none; transform: none; border-color: transparent;
+        }
+
+        #status-container { margin-top: 10px; margin-bottom:10px ; z-index: 40; display: flex; justify-content: center; width: 100%; }
+        
+        #status-msg {
+            background: rgba(255,255,255,0.95); padding: 8px 30px; border-radius: 30px;
+            font-weight: 700; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: 1.1rem; border: 2px solid #fff;
+        }
+
+        /* --- History Section --- */
+        .history {width: 100%; background: white; height: 130px; display: flex; flex-direction: column; border-top: 4px solid #eee; padding: 10px 0 0 0; z-index: 50; position: relative; }
+        .history h4 { margin: 0 0 8px 0; font-size: 0.9rem; color: #999; text-align: center; }
+        .history-wrapper { position: relative; flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
+        
+        .history-items { 
+            display: flex; padding: 0 10px; gap: 12px; overflow-x: auto; overflow-y: hidden; 
+            height: 100%; align-items: center; scroll-behavior: smooth; width: 100%; scrollbar-width: none;
+            direction: ltr !important; 
+        }
+        .history-items::-webkit-scrollbar { display: none; }
+        
+        /* History Navigation Arrows - Fixed Position regardless of language */
+        .nav-btn { 
+            position: absolute; top: 50%; transform: translateY(-50%); 
+            width: 35px; height: 35px; border-radius: 50%; border: none; 
+            background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+            color: #555; cursor: pointer; z-index: 60; font-size: 1.2rem; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: opacity 0.3s, transform 0.2s, background-color 0.2s; 
+            direction: ltr !important;
+            opacity: 0; pointer-events: none;
+        }
+        .history:hover .nav-btn { opacity: 1; pointer-events: auto; }
+        .nav-btn:hover { background: #f9f9f9; transform: translateY(-50%) scale(1.1); }
+        
+        /* Static Physical Placement */
+        .prev-btn { left: 10px !important; right: auto !important; } 
+        .next-btn { right: 10px !important; left: auto !important; }
+        
+    .mini-img-container { 
+        min-width: 60px; 
+        width: 60px; 
+        height: 60px; 
+        border-radius: 8px; 
+        overflow: hidden; 
+        background: #ffffff; 
+        border: 2px solid #f0f0f0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        flex-shrink: 0; 
+        transition: transform 0.2s;
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 3px; 
+    }
+
+    .mini-img-container:hover { 
+        transform: scale(1.1); /* בלי הסיבוב, כדי שיהיה נקי יותר */
+    }
+
+        .mini-img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+        
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+
+        .footer-copyright {
+        width: 100%; 
+        text-align: left; 
+        font-size: 0.7rem; 
+        background: white;
+        color: #95a5a6;
+        padding: 8px 15px;
+        z-index: -1; 
+        font-weight: 400; 
+        direction: ltr;
+        position: relative; 
+    }
+
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .info-content { background: white; width: 90%; max-width: 500px; padding: 30px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; text-align: start; }
+        #info-modal .info-content { border: 4px solid var(--dark-teal); }
+        #info-modal h2 { color: var(--dark-teal); font-weight: 900; margin-top: 0; text-align: center; }
+        #reset-modal .info-content { border: 4px solid var(--reset-main); }
+        #reset-modal h2 { color: var(--reset-main); font-weight: 900; margin-top: 0; }
+        .info-content ul { list-style-type: none; padding: 0; } 
+        .info-content li { margin-bottom: 12px; position: relative; padding-right: 0; } 
+        
+        /* Close button placement by language */
+        .close-info { position: absolute; top: 10px; font-size: 2rem; color: #888; cursor: pointer; } 
+        html[dir="rtl"] .close-info { left: 15px; right: auto; } html[dir="ltr"] .close-info { right: 15px; left: auto; }
+
+        /* Calculator Section */
+        .calc-container { background: #f0f7f7; padding: 15px; border-radius: 12px; margin-top: 20px; border: 1px solid #b2dfdb; position: relative; }
+        .calc-input-group { display: flex; gap: 10px; margin-bottom: 10px; direction: rtl !important; }
+        #calc-players { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Rubik'; text-align: right; }
+        #calc-grid-ref { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Rubik'; direction: ltr; text-align: right; }
+        
+        /* Calculator Lock Overlay */
+        .calc-locked-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.85); border-radius:12px;
+            display: none; align-items: center; justify-content: center;
+            font-weight: 900; color: #7f8c8d; font-size: 1.3rem;
+            z-index: 5;
+        }
+        
+        #calc-result { margin-top: 10px; font-weight: 700; color: #800020; text-align: center; min-height: 20px; line-height: 1.6; }
+
+        .reset-options { display: flex; flex-direction: row; gap: 15px; margin-top: 25px; justify-content: center; width: 100%; }
+        .reset-btn-option { 
+            padding: 12px 10px; flex: 1; border-radius: 15px; border: none; 
+            font-weight: 700; cursor: pointer; font-size: 0.95rem; 
+            transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background-color: var(--reset-main); color: white; 
+        }
+        .reset-btn-option svg { width: 20px; height: 20px; fill: currentColor; }
+        .reset-btn-option:hover { transform: translateY(-2px); background-color: var(--reset-hover); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; font-size: 2rem; }
+        #toast-notification { visibility: hidden; min-width: 200px; background-color: #34495e; color: #fff; text-align: center; border-radius: 30px; padding: 10px 20px; position: fixed; z-index: 20000; top: 75px; right: 20px; left: auto; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.5s, top 0.5s; }
+        #toast-notification.show { visibility: visible; opacity: 1; top: 85px; }
+        
+        /* Caption Toggle Button Active State */
+        #caption-btn { 
+            color: #dbb20c; 
+            background: #f8f3da; 
+        }
+
+        #caption-btn.active {
+            color: #dbb20c; 
+            background: #f8f3da; 
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.15); 
+            transform: translateY(2px);      
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="info-modal" class="modal" onclick="closeModal(event, 'info-modal')">
+        <div class="info-content" onclick="event.stopPropagation()">
+            <span class="close-info" onclick="closeModal(null, 'info-modal')">&times;</span>
+            <h2 data-lang-key="infoTitle">איך משחקים?</h2>
+            <ul id="info-list"></ul>
+            
+            <div class="calc-container">
+                <div class="calc-locked-overlay" id="calc-overlay" data-lang-key="calcLocked">המשחק פעיל</div>
+                <h4 style="margin: 0 0 10px 0; text-align:center; color: var(--dark-teal);" data-lang-key="calcTitle">🧮 מחשבון תמונות</h4>
+                <div class="calc-input-group">
+                    <select id="calc-grid-ref" onchange="calculateRecommendation()">
+                        <option value="3">3x3 (9)</option>
+                        <option value="4">4x4 (16)</option>
+                        <option value="5">5x5 (25)</option>
+                        <option value="6" selected>6x6 (36)</option>
+                        <option value="7">7x7 (49)</option>
+                        <option value="8">8x8 (64)</option>
+                    </select>
+                    <input type="number" id="calc-players" placeholder="משתתפים" min="1" oninput="calculateRecommendation()">
+                </div>
+                <div id="calc-result"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; font-weight: bold; color: #555;">
+                🎉 <span data-lang-key="enjoy">תהנו!</span> 🎉
+            </div>
+        </div>
+    </div>
+
+    <div id="reset-modal" class="modal" onclick="closeModal(event, 'reset-modal')">
+        <div class="info-content" style="text-align: center;" onclick="event.stopPropagation()">
+            <span class="close-info" onclick="closeModal(null, 'reset-modal')">&times;</span>
+            <h2 data-lang-key="resetTitle">איפוס משחק</h2>
+            <p data-lang-key="resetDesc">איך תרצו להמשיך?</p>
+            <div class="reset-options">
+                <button id="btn-soft-reset" class="reset-btn-option" onclick="performReset('soft')">
+                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    <span data-lang-key="btnSoft">ערבב מחדש</span>
+                </button>
+                <button class="reset-btn-option" onclick="performReset('hard')">
+                    <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    <span data-lang-key="btnHard">משחק חדש</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <div data-lang-key="generating">⏳ מייצר כרטיסים</div> 
+    </div>
+
+    <div id="toast-notification" data-lang-key="loadMsg">יש לטעון תמונות מהכפתור למעלה</div>
+
+    <div class="lang-btn-container">
+        <button class="top-btn" id="lang-btn" onclick="toggleLanguage()" title="Switch Language">EN</button>
+    </div>
+
+    <button id="menu-toggle-btn" onclick="toggleMenu()" title="תפריט">☰</button>
+    
+    <div class="menu-items-wrapper" id="menu-wrapper">
+        <button class="top-btn" id="reset-btn" onclick="openResetModal()" title="Reset">
+             <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+
+        <button class="top-btn menu-action-btn" id="fullscreen-btn" onclick="toggleFullScreen()" title="Full Screen">
+            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+        
+        <button class="top-btn menu-action-btn" id="caption-btn" onclick="toggleCaptions()" title="Toggle Captions">
+            <svg viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5V10.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5V10.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>
+        </button>
+
+                <button class="top-btn menu-action-btn" id="pdf-btn" onclick="generateBingoCards()" title="Print PDF">
+            <svg viewBox="0 0 24 24"><path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 12v2H8v-2h8zm2-2v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z"/><circle cx="18" cy="11.5" r="1"/></svg>
+        </button>
+
+                <button class="top-btn menu-action-btn" id="upload-btn" onclick="document.getElementById('file-input').click()" title="Upload">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        </button>
+
+        <select id="grid-select" class="menu-action-btn" onchange="updateRequirements()">
+            <option value="3">3x3 (9)</option>
+            <option value="4">4x4 (16)</option>
+            <option value="5">5x5 (25)</option>
+            <option value="6" selected>6x6 (36)</option>
+            <option value="7">7x7 (49)</option>
+            <option value="8">8x8 (64)</option>
+        </select>
+
+        <button class="top-btn menu-action-btn" id="info-btn" onclick="openModal('info-modal')" title="Info">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </button>
+    </div>
+
+    <div class="game-center">
+        <div id="bingo-ball">
+            <span id="placeholder-text">?</span>
+            
+            <div id="image-caption" class="hidden"></div>
+            
+            <img id="current-image" src="" alt="Selected">
+        </div>
+        <div id="end-game-message" class="hidden" data-lang-key="congrats"></div>
+        
+        <div class="modern-button-container">
+            <button id="draw-btn" onclick="drawImage()" disabled></button>
+        </div>
+        <div id="status-container">
+            <div id="status-msg" data-lang-key="statusInit">טען תמונות כדי להתחיל</div>
+        </div>
+    </div>
+
+    <div class="history">
+        <h4 data-lang-key="history">היסטוריה</h4>
+        <div class="history-wrapper">
+            <button class="nav-btn prev-btn" onclick="scrollHistory('left')">&#10094;</button>
+            <div class="history-items" id="history-container"></div>
+            <button class="nav-btn next-btn" onclick="scrollHistory('right')">&#10095;</button>
+        </div>
+    </div>
+    
+    <div class="footer-copyright">
+        © 2026 Gal Presil. All rights reserved.
+    </div>
+
+    <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let fireworksInterval = null; 
+        
+        const colorfulPastels = [
+            '#e53935', '#43a047', '#1e88e5', '#fdd835', 
+            '#8e24aa', '#fb8c00', '#00acc1', '#ff4081', 
+            '#7cb342', '#3949ab', '#00897b', '#d81b60'
+        ];
+
+        let currentLang = localStorage.getItem('bingoLang') || 'he';
+        let availableImages = [];
+        let originalImagePool = []; 
+        let loadedFilenames = new Set();
+        let minImagesRequired = 36;
+        let isFirstInteraction = true; 
+
+        // ADDED: Track Captions State & Map
+        let showCaptions = false;
+        let imageNamesMap = new Map();
+
+        // Prevent accidental page refresh if game is active
+        window.addEventListener('beforeunload', function (e) {
+            if (originalImagePool.length > 0) {
+                e.preventDefault();
+                e.returnValue = ''; 
+            }
+        });
+
+        window.onload = function() {
+            availableImages = [];
+            originalImagePool = [];
+            loadedFilenames.clear();
+            document.body.dir = currentLang === 'he' ? 'rtl' : 'ltr';
+            
+            setupSync();
+            applyLanguageUI();
+            updateRequirements();
+            showToast();
+            runBackgroundConfetti();
+        };
+
+        // Synchronize grid size between settings and calculator
+        function setupSync() {
+            const mainGrid = document.getElementById('grid-select');
+            const calcGrid = document.getElementById('calc-grid-ref');
+            const calcResult = document.getElementById('calc-result');
+            const calcPlayers = document.getElementById('calc-players');
+
+            mainGrid.addEventListener('change', function() {
+                calcGrid.value = mainGrid.value;
+                if(!document.getElementById('calc-overlay').style.display || document.getElementById('calc-overlay').style.display === 'none') {
+                    calcResult.innerHTML = '';
+                    if(calcPlayers.value) calculateRecommendation();
+                }
+                updateRequirements();
+            });
+
+            calcGrid.addEventListener('change', function() {
+                mainGrid.value = calcGrid.value;
+                calculateRecommendation(); 
+                updateRequirements();
+            });
+
+            calcPlayers.addEventListener('input', function() {
+                calculateRecommendation();
+            });
+        }
+
+        // Unlock audio context and enter full screen on first click
+        function handleFirstInteraction() {
+            if (!isFirstInteraction) return;
+            isFirstInteraction = false;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            enterFullScreen();
+            document.removeEventListener('click', handleFirstInteraction);
+            document.removeEventListener('touchstart', handleFirstInteraction);
+        }
+
+        document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction);
+
+        function toggleMenu() {
+            const menu = document.getElementById('menu-wrapper');
+            const btn = document.getElementById('menu-toggle-btn');
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                btn.innerText = "☰";
+            } else {
+                menu.classList.add('open');
+                btn.innerText = "✕";
+            }
+        }
+
+        // ADDED: Toggle Captions Function
+        function toggleCaptions() {
+            showCaptions = !showCaptions;
+            const btn = document.getElementById('caption-btn');
+            const captionEl = document.getElementById('image-caption');
+            
+            if (showCaptions) {
+                btn.classList.add('active');
+                if (document.getElementById('current-image').style.display === 'block') {
+                    captionEl.classList.remove('hidden');
+                }
+            } else {
+                btn.classList.remove('active');
+                captionEl.classList.add('hidden');
+            }
+        }
+
+        function enterFullScreen() {
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(err => console.log("Fullscreen blocked"));
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT).catch(err => console.log("Fullscreen blocked"));
+                }
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  
+                enterFullScreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        // Support Spacebar for drawing
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); 
+                const btn = document.getElementById('draw-btn');
+                if (!btn.disabled && !btn.classList.contains('hidden') && btn.offsetParent !== null) { 
+                    btn.classList.add('pressed'); 
+                    if (!btn.getAttribute('data-running')) {
+                        drawImage();
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                const btn = document.getElementById('draw-btn');
+                btn.classList.remove('pressed');
+            }
+        });
+
+        function playWinSound() {
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            const now = audioCtx.currentTime;
+            notes.forEach((freq, i) => {
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine'; 
+                oscillator.frequency.value = freq;
+                const startTime = now + (i * 0.06);
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05); 
+                gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5); 
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.5);
+            });
+        }
+
+        const translations = {
+            he: {
+                bingoBtn: "בינגו",
+                drawBtn: "הגרל",
+                finishBtn: "סיים משחק",
+                statusInit: "טען תמונות כדי להתחיל",
+                history: "היסטוריה",
+                infoTitle: "איך משחקים?",
+                infoList: [
+                    "<strong>בחרו גודל לוח:</strong> בחרו את גודל לוח הבינגו הרצוי.",
+                    "<strong>העלו תמונות שונות:</strong> לחצו על הכפתור הכחול והעלו מגוון תמונות. מומלץ להעלות יותר תמונות מכמות המשבצות בכרטיסייה.",
+                    "<strong>צרו כרטיסים:</strong> לחצו על הכפתור הכתום להדפסת כרטיסי PDF.",
+                    "<strong>משחקים!</strong> לחצו על הכפתור הגדול (או על <strong>מקש הרווח</strong>) להגרלת תמונה.",
+                    "<strong>טיפ:</strong> מומלץ לעבוד בתצוגה מלאה."
+                ],
+                enjoy: "תהנו!",
+                generating: "⏳ מייצר כרטיסים",
+                loadMsg: "יש לטעון תמונות מהכפתור למעלה",
+                resetTitle: "איפוס משחק",
+                resetDesc: "איך תרצו להמשיך?",
+                btnSoft: "ערבב מחדש",
+                btnHard: "משחק חדש",
+                gameResetSoft: "המשחק אופס - התמונות נשמרו!",
+                gameResetHard: "המשחק אופס לחלוטין!",
+                noImages: "נגמרו התמונות!",
+                ended: "",
+                missing: "חסרות תמונות!",
+                countPrompt: "כמה כרטיסים לייצר?",
+                added: "נוספו",
+                images: "תמונות",
+                statusHave: "יש",
+                statusMin: "תמונות. המינימום הוא",
+                statusStart: ". אפשר להתחיל!",
+                statusMissing: "תמונות. חסרות עוד",
+                statusLeft: "נשארו",
+                statusPool: "תמונות בקופה",
+                congrats: "ברכות לזוכים!",
+                calcTitle: "🧮 מחשבון תמונות",
+                calcBtn: "חשב המלצה",
+                calcMin: "מינימום טכני",
+                calcRec: "מומלץ לפחות",
+                calcRecImages: "תמונות",
+                calcEnterPlayers: "אנא הזינו מספר משתתפים",
+                calcLocked: "משחק פעיל"
+            },
+            en: {
+                bingoBtn: "Bingo",
+                drawBtn: "Draw",
+                finishBtn: "Finish Game",
+                statusInit: "Upload images to start",
+                history: "History",
+                infoTitle: "How to Play?",
+                infoList: [
+                    "<strong>Choose Grid Size:</strong> Select the bingo grid size.",
+                    "<strong>Upload Different Images:</strong> Click the blue button to upload a variety of photos. Recommendation: Upload more photos than grid cells in the card.",
+                    "<strong>Create Cards:</strong> Click the orange button to print PDF cards.",
+                    "<strong>Play!</strong> Click the big button (or press <strong>SPACE</strong>) to draw an image.",
+                    "<strong>Tip:</strong> Full screen mode recommended."
+                ],
+                enjoy: "Enjoy!",
+                generating: "⏳ Generating Cards",
+                loadMsg: "Please upload images from the top button",
+                resetTitle: "Reset Game",
+                resetDesc: "How would you like to proceed?",
+                btnSoft: "Remix",
+                btnHard: "New Game",
+                gameResetSoft: "Game reset - Images kept!",
+                gameResetHard: "Game fully reset!",
+                noImages: "No more images!",
+                ended: "",
+                missing: "Missing images!",
+                countPrompt: "How many cards to generate?",
+                added: "Added",
+                images: "images",
+                statusHave: "Have",
+                statusMin: "images. Minimum is",
+                statusStart: ". Ready to start!",
+                statusMissing: "images. Need",
+                statusLeft: "Remaining",
+                statusPool: "images in pool",
+                congrats: "Congratulations to the Winners!",
+                calcTitle: "🧮 Image Calculator",
+                calcBtn: "Calculate Recommendation",
+                calcMin: "Technical Minimum",
+                calcRec: "Recommended at least",
+                calcRecImages: "images",
+                calcEnterPlayers: "Please enter participant count",
+                calcLocked: "Game in Progress"
+            }
+        };
+
+        const mainBall = document.getElementById('bingo-ball');
+        const currentImage = document.getElementById('current-image');
+        const placeholderText = document.getElementById('placeholder-text');
+        const historyContainer = document.getElementById('history-container');
+        const drawButton = document.getElementById('draw-btn');
+        const pdfButton = document.getElementById('pdf-btn');
+        const fileInput = document.getElementById('file-input');
+        const statusMsg = document.getElementById('status-msg');
+        const statusContainer = document.getElementById('status-container');
+        const toast = document.getElementById('toast-notification');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const gridSelect = document.getElementById('grid-select');
+        const langBtn = document.getElementById('lang-btn');
+        const infoListEl = document.getElementById('info-list');
+        const uploadBtn = document.getElementById('upload-btn');
+        const endGameMessage = document.getElementById('end-game-message');
+        const menuWrapper = document.getElementById('menu-wrapper');
+        const menuActionBtns = document.querySelectorAll('.menu-action-btn');
+        const menuToggleBtn = document.getElementById('menu-toggle-btn');
+        const drawBtnContainer = document.querySelector('.modern-button-container');
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(e, id) {
+            if (e && e.target.className !== 'modal' && e.target.className !== 'close-info' && !e.target.classList.contains('reset-btn-option')) return;
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function openResetModal() {
+            const btnSoft = document.getElementById('btn-soft-reset');
+            if (originalImagePool.length === 0) {
+                btnSoft.style.display = 'none';
+            } else {
+                btnSoft.style.display = 'flex';
+            }
+            openModal('reset-modal');
+        }
+
+        function performReset(type) {
+            const t = translations[currentLang];
+            
+            if (fireworksInterval) {
+                clearInterval(fireworksInterval);
+                fireworksInterval = null;
+            }
+
+            historyContainer.innerHTML = '';
+            currentImage.style.display = 'none';
+            currentImage.src = '';
+            placeholderText.style.display = 'block';
+            
+            // ADDED: Hide Caption on reset
+            document.getElementById('image-caption').classList.add('hidden');
+
+            mainBall.classList.remove('hidden');
+            drawBtnContainer.classList.remove('hidden');
+            statusContainer.classList.remove('hidden');
+            menuToggleBtn.classList.remove('hidden');
+            endGameMessage.classList.add('hidden');
+            
+            menuWrapper.classList.remove('game-over-mode');
+            menuActionBtns.forEach(btn => btn.classList.remove('hidden'));
+
+            gridSelect.disabled = false;
+            uploadBtn.disabled = false;
+            
+            document.getElementById('pdf-btn').disabled = false;
+            document.getElementById('calc-grid-ref').disabled = false;
+            document.getElementById('calc-players').disabled = false;
+            document.getElementById('calc-overlay').style.display = 'none';
+
+            if (type === 'soft') {
+                availableImages = [...originalImagePool];
+                showToast(t.gameResetSoft);
+            } else {
+                availableImages = [];
+                originalImagePool = [];
+                loadedFilenames.clear();
+                // ADDED: Clear map on hard reset
+                imageNamesMap.clear();
+                showToast(t.gameResetHard);
+            }
+            
+            updateRequirements();
+            closeModal(null, 'reset-modal');
+        }
+
+        function calculateRecommendation() {
+            const gridSize = parseInt(document.getElementById('calc-grid-ref').value);
+            const players = parseInt(document.getElementById('calc-players').value) || 0;
+            const t = translations[currentLang];
+            const resultDiv = document.getElementById('calc-result');
+            
+            if (players <= 0) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+
+            const totalCells = gridSize * gridSize;
+            const recommended = totalCells + Math.max(5, Math.ceil(players / 3));
+            
+            resultDiv.innerHTML = `${t.calcRec} <u style="font-size:1.2em; color: #800020;">${recommended}</u> ${t.calcRecImages}<br><span style="font-size:0.8em; font-weight:normal; color:#555">(${t.calcMin}: ${totalCells})</span>`;
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'he' ? 'en' : 'he';
+            localStorage.setItem('bingoLang', currentLang);
+            applyLanguageUI();
+        }
+
+        function applyLanguageUI() {
+            document.body.dir = currentLang === 'he' ? 'rtl' : 'ltr';
+            langBtn.innerText = currentLang === 'he' ? 'EN' : 'HE';
+            
+            const keys = document.querySelectorAll('[data-lang-key]');
+            keys.forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if(translations[currentLang][key]) {
+                    if (el.children.length === 0 || el.tagName === 'P' || el.tagName === 'SPAN' || el.tagName === 'DIV' || el.tagName === 'H2' || el.tagName === 'H4' || el.tagName === 'BUTTON') {
+                         el.innerHTML = translations[currentLang][key];
+                    } else {
+                        const span = el.querySelector('span');
+                        if(span) span.innerText = translations[currentLang][key];
+                        else el.innerHTML = translations[currentLang][key]; 
+                    }
+                }
+            });
+
+            document.getElementById('calc-players').placeholder = currentLang === 'he' ? "משתתפים" : "Players";
+
+            const playersVal = document.getElementById('calc-players').value;
+            if(playersVal && playersVal > 0) {
+                calculateRecommendation();
+            }
+
+            const elementsToFlip = [statusMsg, drawButton, toast, document.querySelector('.info-content')];
+            elementsToFlip.forEach(el => {
+                if(el) {
+                    el.style.direction = currentLang === 'he' ? 'rtl' : 'ltr';
+                    if(el.classList.contains('info-content')) {
+                        el.style.textAlign = currentLang === 'he' ? 'right' : 'left';
+                    }
+                }
+            });
+            renderInfoList();
+            updateRequirements();
+        }
+
+        function renderInfoList() {
+            infoListEl.innerHTML = '';
+            translations[currentLang].infoList.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = item;
+                infoListEl.appendChild(li);
+            });
+        }
+
+        function showToast(text) {
+            if(text) toast.innerText = text; else toast.innerText = translations[currentLang].loadMsg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
+        }
+
+        function scrollHistory(side) {
+            const scrollAmount = 150;
+            const container = document.getElementById('history-container');
+            const val = side === 'left' ? -scrollAmount : scrollAmount;
+            container.scrollBy({ left: val, behavior: 'smooth' });
+        }
+
+        function runBackgroundConfetti() {
+            setInterval(function() {
+                const randomColor = colorfulPastels[Math.floor(Math.random() * colorfulPastels.length)];
+                confetti({
+                    particleCount: 1, 
+                    startVelocity: 0, 
+                    ticks: 300, 
+                    origin: { x: Math.random(), y: -0.05 }, 
+                    colors: [randomColor], 
+                    shapes: ['circle', 'square'], 
+                    gravity: 0.25 + Math.random() * 0.2,
+                    scalar: 0.8 + Math.random() * 0.4,   
+                    drift: (Math.random() - 0.5) * 1.5,
+                    disableForReducedMotion: true
+                });
+            }, 100); 
+        }
+
+        function updateRequirements() {
+            const t = translations[currentLang];
+            const size = parseInt(gridSelect.value);
+            minImagesRequired = size * size;
+            const currentCount = availableImages.length;
+            const missing = minImagesRequired - currentCount;
+            
+            const gameHasBegun = originalImagePool.length > 0 && availableImages.length < originalImagePool.length;
+
+            if (gameHasBegun) {
+                if (currentCount > 0) {
+                    drawButton.innerHTML = t.drawBtn;
+                    drawButton.disabled = false;
+                    statusMsg.innerText = `${t.statusLeft} ${currentCount} ${t.statusPool}`;
+                    statusMsg.style.color = "#333";
+                    statusMsg.style.borderColor = "#ccc";
+                } else {
+                    drawButton.innerText = t.finishBtn;
+                    drawButton.disabled = false;
+                    statusMsg.innerText = t.noImages;
+                }
+            } else {
+                if (currentCount >= minImagesRequired) {
+                    drawButton.innerHTML = t.drawBtn;
+                    if(currentLang === 'en') statusMsg.innerText = `${currentCount} images loaded. Minimum: ${minImagesRequired}. Ready to start!`;
+                    else statusMsg.innerText = `${t.statusHave} ${currentCount} ${t.statusMin} ${minImagesRequired}${t.statusStart}`;
+                    statusMsg.style.color = "#27ae60"; statusMsg.style.borderColor = "#2ecc71";
+                    drawButton.disabled = false;
+                } else {
+                    drawButton.innerHTML = t.bingoBtn;
+                    if(currentLang === 'en') statusMsg.innerText = `${currentCount} images loaded. Need ${missing} more.`;
+                    else statusMsg.innerText = `${t.statusHave} ${currentCount} ${t.statusMissing} ${missing}.`;
+                    statusMsg.style.color = "#c0392b"; statusMsg.style.borderColor = "#e74c3c";
+                    drawButton.disabled = true; 
+                }
+            }
+            
+            if(gameHasBegun) {
+               document.getElementById('pdf-btn').disabled = true;
+            } else {
+               document.getElementById('pdf-btn').disabled = false;
+            }
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                let addedCount = 0;
+                for (let file of files) {
+                    if (loadedFilenames.has(file.name)) continue;
+                    
+                    loadedFilenames.add(file.name);
+                    const url = URL.createObjectURL(file);
+                    availableImages.push(url);
+                    originalImagePool.push(url); 
+                    
+                    // ADDED: Store file name without extension
+                    const nameNoExt = file.name.split('.').slice(0, -1).join('.');
+                    imageNamesMap.set(url, nameNoExt);
+
+                    addedCount++;
+                }
+                updateRequirements();
+                showToast(`${translations[currentLang].added} ${addedCount} ${translations[currentLang].images}!`);
+                fileInput.value = ''; 
+            }
+        });
+
+        function drawImage() {
+            const t = translations[currentLang];
+            const btn = document.getElementById('draw-btn');
+            
+            if (btn.getAttribute('data-running')) return;
+            btn.setAttribute('data-running', 'true');
+
+            if (availableImages.length === 0) {
+                mainBall.classList.add('hidden'); 
+                drawBtnContainer.classList.add('hidden'); 
+                statusContainer.classList.add('hidden'); 
+                menuToggleBtn.classList.add('hidden'); 
+                
+                menuWrapper.classList.add('game-over-mode');
+                menuActionBtns.forEach(btn => btn.classList.add('hidden'));
+
+                endGameMessage.innerText = t.congrats; 
+                endGameMessage.classList.remove('hidden'); 
+                
+                fireFireworks();
+                fireworksInterval = setInterval(() => {
+                    fireFireworks();
+                }, 2500);
+                
+                btn.removeAttribute('data-running');
+                return;
+            }
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            gridSelect.disabled = true;
+            uploadBtn.disabled = true;
+            document.getElementById('pdf-btn').disabled = true;
+            
+            document.getElementById('calc-grid-ref').disabled = true;
+            document.getElementById('calc-players').disabled = true;
+            document.getElementById('calc-overlay').style.display = 'flex';
+
+            mainBall.classList.add('pulsing');
+            
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * availableImages.length);
+                const drawnImageSrc = availableImages[randomIndex];
+                availableImages.splice(randomIndex, 1);
+                
+                updateRequirements(); 
+                
+                placeholderText.style.display = 'none';
+                currentImage.style.display = 'block';
+                currentImage.src = drawnImageSrc;
+                
+                // ADDED: Update & Show Caption
+                const captionEl = document.getElementById('image-caption');
+                captionEl.innerText = imageNamesMap.get(drawnImageSrc) || "";
+                if (showCaptions) {
+                    captionEl.classList.remove('hidden');
+                } else {
+                    captionEl.classList.add('hidden');
+                }
+
+                mainBall.classList.remove('pulsing');
+                currentImage.classList.remove('animate-pop');
+                void currentImage.offsetWidth; 
+                currentImage.classList.add('animate-pop');
+                
+                addToHistory(drawnImageSrc);
+                fireColoredConfetti();
+                playWinSound();
+                
+                btn.removeAttribute('data-running');
+            }, 300); 
+        }
+
+        function addToHistory(imgSrc) {
+            const container = document.createElement('div');
+            container.className = 'mini-img-container animate-pop';
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.className = 'mini-img';
+            container.appendChild(img);
+            historyContainer.prepend(container);
+        }
+
+        function fireColoredConfetti() {
+            const defaults = { startVelocity: 40, spread: 80, ticks: 300, zIndex: 0, colors: colorfulPastels, gravity: 0.8, scalar: 1.2 };
+            confetti(Object.assign({}, defaults, { particleCount: 50, origin: { x: 0, y: 0.8 }, angle: 60 }));
+            confetti(Object.assign({}, defaults, { particleCount: 50, origin: { x: 1, y: 0.8 }, angle: 120 }));
+        }
+
+        function fireFireworks() {
+            const duration = 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, colors: colorfulPastels };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function loadImage(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
+
+async function generateBingoCards() {
+            const t = translations[currentLang];
+            if (availableImages.length < minImagesRequired) { showToast(t.missing); return; }
+            const countInput = prompt(t.countPrompt, "5");
+            const cardCount = parseInt(countInput);
+            if (!cardCount || cardCount <= 0) return;
+
+            loadingOverlay.style.display = 'flex';
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const gridSize = parseInt(gridSelect.value);
+                
+                const pageW = 210; // רוחב A4
+                const pageH = 297; // גובה A4
+                const squareSize = 170; // גודל הטבלה (מוגדל לעמוד שלם)
+                const cellSize = squareSize / gridSize;
+                const startX = (pageW - squareSize) / 2;
+                const startY = (pageH - squareSize) / 2; // מרכוז אנכי מושלם
+
+                const uniquePool = [...availableImages];
+                
+                for (let k = 0; k < cardCount; k++) {
+                    // מוסיף עמוד חדש לכל כרטיס, חוץ מהכרטיס הראשון שנוצר אוטומטית
+                    if (k > 0) {
+                        doc.addPage();
+                    }
+
+                    // ערבוב התמונות עבור כל כרטיס
+                    const shuffled = [...uniquePool].sort(() => 0.5 - Math.random());
+                    const gridSizeSq = gridSize * gridSize;
+                    const cardImages = shuffled.slice(0, gridSizeSq);
+
+                    // ציור הרשת והתמונות
+                    for (let row = 0; row < gridSize; row++) {
+                        for (let col = 0; col < gridSize; col++) {
+                            const x = startX + (col * cellSize);
+                            const y = startY + (row * cellSize);
+                            
+                            doc.setDrawColor(180); 
+                            doc.setLineWidth(0.3);
+                            doc.rect(x, y, cellSize, cellSize);
+                            
+                            const imgIdx = (row * gridSize) + col;
+                            if (imgIdx < cardImages.length) {
+                                const imgUrl = cardImages[imgIdx];
+                                const imgObj = await loadImage(imgUrl);
+                                const pad = 1.5; // מרווח פנימי קטן בתוך המשבצת
+                                doc.addImage(imgObj, 'JPEG', x + pad, y + pad, cellSize - (pad * 2), cellSize - (pad * 2));
+                            }
+                        }
+                    }
+                    
+                }
+                
+                doc.save(`bingo-cards-${gridSize}x${gridSize}.pdf`);
+            } catch (err) {
+                console.error(err);
+                alert("Error generating PDF");
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+
+    </script>
+</body>
+</html>
