@@ -1,4 +1,4 @@
-# Bingo Image Game Show
+# Interactive Image Bingo Game
 
 A fully interactive, web-based Bingo game designed for events, workshops, and social gatherings. 
 <br> This tool allows users to create custom Bingo games using their own images and generate printable cards instantly.
