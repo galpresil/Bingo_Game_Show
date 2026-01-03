@@ -18,5 +18,5 @@ A fully interactive, web-based Bingo game designed for events, workshops, and so
 3. **Generate Cards**: Use the PDF icon to create and download printable cards for your players.
 4. **Start the Game**: Click the "Draw" button or press the Spacebar to randomly select the next image.
 
-🔗 [To the Bingo Game:](https://galpresil.github.io/Bingo_Game_Show/)
+🔗 [To the Bingo Game >>](https://galpresil.github.io/Bingo_Game_Show/)
 
