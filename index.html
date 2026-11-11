@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,30 +11,34 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
             /* Turquoise Theme (Main) */
-            --primary-gradient: linear-gradient(135deg, #2980b9 0%, #00897b 100%); 
+            --primary-gradient: linear-gradient(135deg, #2980b9 0%, #00897b 100%);
             --dark-teal: #00897b;
             --shadow-teal: #004d40;
-            
+
             /* Reset Modal Colors */
-            --reset-main: #c0392b;       
+            --reset-main: #c0392b;
             --reset-hover: #e74c3c;
 
             /* Draw Button Pastel Blue Theme */
-            --draw-btn-bg: #81a6ab; 
+            --draw-btn-bg: #81a6ab;
             --draw-btn-hover: #558293;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
-            font-family: 'Rubik', sans-serif;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 400;
             background-color: #eaf4fc;
-            height: 100dvh; 
+            height: 100dvh;
             width: 100vw;
             display: flex;
             flex-direction: column;
@@ -45,87 +50,327 @@
             transition: background 0.3s;
         }
 
-        .hidden { display: none !important; }
+        strong,
+        b {
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none !important;
+        }
 
         /* --- Hamburger Menu Button --- */
         #menu-toggle-btn {
-            position: fixed; top: 15px; 
-            right: 15px !important; left: auto !important; /* Always on the right */
-            width: 48px; height: 48px; 
-            border-radius: 50%; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            background: white; color: #7f8c8d; font-size: 1.5rem; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            position: fixed;
+            top: 15px;
+            right: 15px !important;
+            left: auto !important;
+            /* Always on the right */
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            line-height: 0;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            color: #7f8c8d;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             transition: transform 0.2s ease, color 0.2s, box-shadow 0.2s;
-            z-index: 20000; 
+            z-index: 20000;
         }
-        #menu-toggle-btn:hover { transform: scale(1.05); color: #555; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
-        
+
+        #menu-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            display: block;
+        }
+
+        #menu-toggle-btn:hover {
+            transform: scale(1.05);
+            color: #555;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
         /* --- Dropdown Menu Items --- */
         .menu-items-wrapper {
-            position: fixed; top: 15px; 
-            right: 75px !important; left: auto !important; /* Always on the right */
+            position: fixed;
+            top: 15px;
+            right: 75px !important;
+            left: auto !important;
+            /* Always on the right */
             z-index: 19000;
-            background: white; border-radius: 50px;
-            display: flex; align-items: center; gap: 10px;
-            padding: 0; height: 48px; max-width: 0; opacity: 0; overflow: hidden;
+            background: white;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0;
+            height: 48px;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
             pointer-events: none;
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            
-            direction: ltr !important; /* Maintains button order */
-            flex-direction: row; 
-            justify-content: flex-end; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+            direction: ltr !important;
+            /* Maintains button order */
+            flex-direction: row;
+            justify-content: flex-end;
         }
+
         .menu-items-wrapper.open {
-            max-width: 700px; opacity: 1; padding: 0 15px;
+            max-width: 700px;
+            opacity: 1;
+            padding: 0 6px;
+            overflow: visible;
             pointer-events: auto;
         }
 
         .menu-items-wrapper.game-over-mode {
             top: 15px !important;
-            max-width: 100px !important; max-height: 100px !important;
-            opacity: 1 !important; pointer-events: auto !important;
-            padding: 0 5px !important; 
-            right: 15px !important; 
-            background: transparent; box-shadow: none; overflow: visible;
+            max-width: 100px !important;
+            max-height: 100px !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            padding: 0 5px !important;
+            right: 15px !important;
+            background: transparent;
+            box-shadow: none;
+            overflow: visible;
         }
 
         /* Language Toggle - Always on the left */
-        .lang-btn-container { 
-            position: absolute; top: 15px; z-index: 9999; 
-            left: 15px !important; right: auto !important;
+        .lang-btn-container {
+            position: absolute;
+            top: 15px;
+            z-index: 9999;
+            left: 15px !important;
+            right: auto !important;
         }
 
         .top-btn {
-            width: 36px; height: 36px; 
-            border-radius: 50%; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
-            background: #f0f0f0; color: #555; font-size: 1.1rem; flex-shrink: 0;
-        }
-        .top-btn:hover { transform: scale(1.1); background: #e0e0e0; }
-        .top-btn:active { transform: scale(0.95); }
-        .top-btn:disabled { 
-            opacity: 0.3; cursor: not-allowed; transform: none; background: #ddd; color: #aaa;
-        }
-        .top-btn svg { width: 20px; height: 20px; fill: currentColor; }
-        
-        #info-btn { color: var(--dark-teal); background: #e0f2f1; }
-        #pdf-btn { color: #e67e22; background: #fff0e0; }
-        #upload-btn { color: #3498db; background: #e0f0ff; }
-        #reset-btn { color: #e74c3c; background: #ffe0e0; }
-        #fullscreen-btn { color: #455a64; background: #eceff1; } 
-        #lang-btn { background: transparent; box-shadow: none; font-size: 1rem; width: auto; height: auto; }
-        #lang-btn:hover { background: transparent; transform: scale(1.2); }
-
-        #grid-select {
-            padding: 0 12px; font-family: 'Rubik', sans-serif; font-weight: bold;
-            border-radius: 20px; border: 2px solid #eee; background: white;
-            color: #333; outline: none; cursor: pointer; height: 36px; font-size: 1rem;
+            background: #f0f0f0;
+            color: #555;
+            font-size: 1.1rem;
             flex-shrink: 0;
         }
-        #grid-select:disabled { background: #eee; color: #999; cursor: not-allowed; }
+
+        .top-btn:hover {
+            transform: scale(1.1);
+            background: #e0e0e0;
+        }
+
+        .top-btn:active {
+            transform: scale(0.95);
+        }
+
+        .top-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+            background: #ddd;
+            color: #aaa;
+        }
+
+        .top-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        #info-btn {
+            color: var(--dark-teal);
+            background: #e0f2f1;
+        }
+
+        #pdf-btn {
+            color: #e67e22;
+            background: #fff0e0;
+        }
+
+        #upload-btn {
+            color: #3498db;
+            background: #e0f0ff;
+        }
+
+        #reset-btn {
+            color: #e74c3c;
+            background: #ffe0e0;
+        }
+
+        #fullscreen-btn {
+            color: #455a64;
+            background: #eceff1;
+        }
+
+        #lang-btn {
+            background: transparent;
+            box-shadow: none;
+            font-size: 1rem;
+            width: auto;
+            height: auto;
+        }
+
+        #lang-btn:hover {
+            background: transparent;
+            transform: scale(1.2);
+        }
+
+        .grid-select-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .grid-select-wrapper:has(#grid-select:disabled),
+        .calc-select-wrapper:has(#calc-grid-ref:disabled) {
+            cursor: not-allowed;
+        }
+
+        #grid-select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding: 0 28px 0 14px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 400;
+            border-radius: 18px;
+            border: none;
+            background-color: #f0f0f0;
+            color: #333;
+            outline: none;
+            pointer-events: none;
+            height: 36px;
+            font-size: 1rem;
+            flex-shrink: 0;
+            direction: ltr;
+            text-align: left;
+            text-align-last: left;
+        }
+
+        .custom-select-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-6px) scale(0.96);
+            min-width: 112px;
+            background: white;
+            border-radius: 14px;
+            padding: 5px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 25000;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.22s;
+            direction: ltr;
+        }
+
+        .grid-select-wrapper.open .custom-select-dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0) scale(1);
+            transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s;
+        }
+
+        .calc-select-wrapper .custom-select-dropdown {
+            top: calc(100% + 6px);
+            left: 0;
+            width: 100%;
+            min-width: 0;
+            border-radius: 10px;
+            transform: translateY(-6px) scale(0.98);
+        }
+
+        .calc-select-wrapper.open .custom-select-dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+            transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s;
+        }
+
+        .custom-select-option {
+            padding: 7px 12px;
+            border-radius: 9px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 400;
+            color: #334155;
+            cursor: pointer;
+            text-align: left;
+            white-space: nowrap;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .custom-select-option:hover {
+            background-color: #f3f4f6;
+            color: #222;
+        }
+
+        .custom-select-option.selected {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        #grid-select option {
+            direction: ltr;
+            text-align: left;
+            font-weight: 400;
+        }
+
+        .grid-select-arrow {
+            position: absolute;
+            right: 11px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+            transition: transform 0.25s ease;
+            color: #555;
+        }
+
+        .grid-select-wrapper.open .grid-select-arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .grid-select-short {
+            display: none;
+        }
+
+        #grid-select:disabled {
+            background-color: #eee;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        #grid-select:disabled + .grid-select-arrow {
+            color: #999;
+        }
 
         /* Vertical Toolbar when horizontal space is limited (Small Windows & Mobile) */
         @media (max-width: 560px) {
@@ -133,338 +378,889 @@
                 top: 72px;
                 right: 15px !important;
                 flex-direction: column-reverse;
-                justify-content: flex-end;
+                justify-content: flex-start;
                 align-items: center;
-                width: auto;
+                gap: 6px;
+                width: 48px;
                 min-width: 48px;
                 max-width: none;
                 height: auto;
                 max-height: 0;
                 padding: 0 6px;
-                border-radius: 30px;
+                border-radius: 24px;
                 scrollbar-width: none;
             }
+
             .menu-items-wrapper::-webkit-scrollbar {
                 display: none;
             }
+
             .menu-items-wrapper.open {
                 max-width: none;
-                max-height: min(380px, calc(100dvh - 85px));
-                padding: 12px 6px;
-                overflow-y: auto;
+                max-height: min(420px, calc(100dvh - 85px));
+                padding: 6px;
+                overflow: visible;
             }
+
+            .grid-select-wrapper {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background-color: #f0f0f0;
+                justify-content: center;
+                transition: transform 0.2s, background-color 0.2s;
+            }
+
+            .grid-select-wrapper .custom-select-dropdown {
+                top: 50%;
+                left: auto;
+                right: calc(100% + 14px);
+                transform: translateY(-50%) translateX(6px) scale(0.96);
+            }
+
+            .grid-select-wrapper.open .custom-select-dropdown {
+                transform: translateY(-50%) translateX(0) scale(1);
+            }
+
+            .grid-select-wrapper:hover {
+                transform: scale(1.1);
+                background-color: #e0e0e0;
+            }
+
+            .grid-select-short {
+                display: block;
+                font-family: 'Fredoka', sans-serif;
+                font-size: 0.78rem;
+                font-weight: 500;
+                color: #333;
+                pointer-events: none;
+                line-height: 1;
+                direction: ltr;
+            }
+
             #grid-select {
-                appearance: none;
-                -webkit-appearance: none;
-                padding: 0 4px;
-                font-size: 0.72rem;
-                height: 32px;
-                border-radius: 16px;
-                text-align: center;
-                text-align-last: center;
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                opacity: 0;
+                border-radius: 50%;
+                direction: rtl;
+            }
+
+            #grid-select:disabled ~ .grid-select-short {
+                color: #999;
+            }
+
+            .grid-select-arrow {
+                display: none;
             }
         }
 
         /* --- Game Center Stage --- */
         .game-center {
-            position: relative; flex: 1 1 auto; min-height: 0; width: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 15px 10px 5px; margin-top: 0;
+            position: relative;
+            flex: 1 1 auto;
+            min-height: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px 5px;
+            margin-top: 0;
         }
 
         #bingo-ball {
-            width: min(65vw, 48dvh, 420px); height: min(65vw, 48dvh, 420px);
-            background: #ffffff; border-radius: 14%; 
-            position: relative; z-index: 10;
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.2); 
-            border: 4px solid #fff; overflow: hidden; 
-            display: flex; align-items: center; justify-content: center;
-            padding: 10px; flex-shrink: 1; transition: all 0.3s ease-out;
+            width: min(65vw, 48dvh, 420px);
+            height: min(65vw, 48dvh, 420px);
+            background: #ffffff;
+            border-radius: 18px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.14);
+            border: none;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            flex-shrink: 1;
+            transition: all 0.3s ease-out;
         }
 
         /*Caption Style */
         #image-caption {
             position: absolute;
-            top: 0;               
-            background: rgba(142, 156, 176, 0.55); 
+            top: 0;
+            background: rgba(142, 156, 176, 0.55);
             color: white;
             padding: 10px 25px;
-            border-radius: 0px 0px 15px 15px; 
-            font-weight: 900;
+            border-radius: 0;
+            font-weight: 600;
             font-size: 1.4rem;
             z-index: 20;
-            width: 100%;        
+            width: 100%;
             max-width: 100%;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .pulsing { transform: scale(0.92); opacity: 0.7; }
+        .pulsing {
+            transform: scale(0.92);
+            opacity: 0.7;
+        }
 
-        #current-image { width: 100%; height: 100%; object-fit: contain; display: none; }
-        #placeholder-text { font-size: 15vmin; color: #e0e0e0; font-weight: 900; user-select: none; }
+        #current-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        #placeholder-text {
+            font-size: 15vmin;
+            color: #e0e0e0;
+            font-weight: 600;
+            user-select: none;
+        }
 
         /* Game End Message */
         #end-game-message {
-            font-size: 4rem; font-weight: 900; text-align: center;
+            font-size: 4rem;
+            font-weight: 600;
+            text-align: center;
             color: var(--dark-teal);
-            text-shadow: 0 4px 20px rgba(255,255,255,0.8), 0 0 10px rgba(0,0,0,0.1);
-            z-index: 15; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 20px; line-height: 1.2; width: 90%;
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.8), 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 15;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 20px;
+            line-height: 1.2;
+            width: 90%;
         }
 
-        .modern-button-container { 
-            position: relative; z-index: 30; margin-top: 0; flex-shrink: 0;
-            display: flex; justify-content: center; 
+        .modern-button-container {
+            position: relative;
+            z-index: 30;
+            margin-top: 0;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
         }
 
-        #bingo-ball:not(.hidden) ~ .modern-button-container {
+        #bingo-ball:not(.hidden)~.modern-button-container {
             margin-top: 4px;
         }
 
         @keyframes drawIdleMove {
-            0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
-            25% { transform: translateY(-3px) scale(1.04) rotate(-1.5deg); }
-            50% { transform: translateY(0) scale(1.06) rotate(0deg); }
-            75% { transform: translateY(-3px) scale(1.04) rotate(1.5deg); }
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-3px) scale(1.04) rotate(-1.5deg);
+            }
+
+            50% {
+                transform: translateY(0) scale(1.06) rotate(0deg);
+            }
+
+            75% {
+                transform: translateY(-3px) scale(1.04) rotate(1.5deg);
+            }
+        }
+
+        @keyframes heroBingoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-6px) scale(1.03);
+            }
         }
 
         #draw-btn {
-            background: transparent; color: var(--draw-btn-hover); border: none;
-            font-family: 'Rubik', sans-serif;
-            font-size: clamp(2.2rem, 5.5dvh, 3.4rem); font-weight: 900;
-            line-height: 1.1;
-            cursor: pointer; padding: 2px 20px;
-            -webkit-text-stroke: 8px #ffffff;
-            paint-order: stroke fill;
-            text-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+            background: linear-gradient(180deg, #facc15 0%, #eab308 50%, #d97706 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: #eab308;
+            border: none;
+            outline: none;
+            -webkit-text-stroke: 0;
+            text-shadow: none;
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(2.5rem, 6.2dvh, 3.8rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            padding: 6px 22px;
+            filter: drop-shadow(0 3px 0 rgba(217, 119, 6, 0.22));
+            will-change: transform;
             box-shadow: none;
-            transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+            transition: transform 0.2s ease;
             transform: translateY(0);
             animation: drawIdleMove 2.2s ease-in-out infinite;
         }
-        #draw-btn:hover:not(:disabled) { 
-            background: transparent;
-            color: #3d6878;
-            text-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-            animation: none;
-            transform: translateY(-2px) scale(1.08);
-        }
-        #draw-btn:active:not(:disabled), #draw-btn.pressed:not(:disabled) { 
-            background: transparent;
-            color: #2c4f5c;
-            animation: none;
-            transform: translateY(2px) scale(0.95); 
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-        }
-        #draw-btn:disabled { 
-            background: transparent; color: var(--draw-btn-hover); cursor: default; 
-            font-size: clamp(4rem, 12vmin, 6.5rem);
-            -webkit-text-stroke: 10px #ffffff;
-            box-shadow: none; transform: none;
-            animation: none;
-        }
-        #bingo-ball:not(.hidden) ~ .modern-button-container #draw-btn:disabled {
-            font-size: clamp(2.2rem, 5.5dvh, 3.2rem);
-            -webkit-text-stroke: 8px #ffffff;
+
+        body[dir="ltr"] #draw-btn {
+            font-family: 'Outfit', 'Fredoka', sans-serif;
+            font-weight: 900;
+            -webkit-text-stroke: 0;
+            letter-spacing: 0.04em;
         }
 
-        #status-container { margin-top: 6px; margin-bottom: 6px; z-index: 40; display: flex; justify-content: center; width: 100%; flex-shrink: 0; }
-        
+        #draw-btn:hover:not(:disabled) {
+            filter: drop-shadow(0 3.5px 0 rgba(217, 119, 6, 0.28));
+            animation: none;
+            transform: translateY(-2px) scale(1.06);
+        }
+
+        #draw-btn:active:not(:disabled),
+        #draw-btn.pressed:not(:disabled) {
+            animation: none;
+            transform: translateY(2px) scale(0.95);
+            filter: drop-shadow(0 1.5px 0 rgba(217, 119, 6, 0.25));
+        }
+
+        #draw-btn:disabled {
+            background: linear-gradient(180deg, #facc15 0%, #eab308 50%, #d97706 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 0;
+            text-shadow: none;
+            cursor: default;
+            font-size: clamp(5.2rem, 15.5vmin, 8.2rem);
+            font-weight: 700;
+            filter: drop-shadow(0 5px 0 rgba(217, 119, 6, 0.22));
+            will-change: transform;
+            box-shadow: none;
+            animation: heroBingoFloat 4s ease-in-out infinite;
+        }
+
+        body[dir="ltr"] #draw-btn:disabled {
+            font-weight: 900;
+            -webkit-text-stroke: 0;
+            letter-spacing: 0.05em;
+        }
+
+        #bingo-ball:not(.hidden)~.modern-button-container #draw-btn:disabled {
+            font-size: clamp(2.5rem, 6.2dvh, 3.6rem);
+            -webkit-text-stroke: 0;
+            filter: drop-shadow(0 3px 0 rgba(217, 119, 6, 0.2));
+        }
+
+        #status-container {
+            margin-top: 8px;
+            margin-bottom: 6px;
+            z-index: 40;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
         #status-msg {
-            background: rgba(255,255,255,0.95); padding: 6px 24px; border-radius: 12px;
-            font-weight: 700; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            font-size: clamp(0.9rem, 2dvh, 1.05rem); border: none;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #334155;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            font-size: clamp(0.88rem, 1.9dvh, 1rem);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .status-badge-pill {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.85em;
+            letter-spacing: 0.02em;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        #status-msg.state-missing .status-badge-pill {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        #status-msg.state-ready .status-badge-pill {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        #status-msg.state-playing .status-badge-pill {
+            background: #ccfbf1;
+            color: #0f766e;
         }
 
         /* --- History Section --- */
         .history {
-            width: 100%; background: white; height: min(115px, 18dvh);
+            width: 100%;
+            background: white;
+            height: min(115px, 18dvh);
             flex-shrink: 0;
-            display: flex; flex-direction: column; border-top: none;
-            padding: 8px 0 0 0; z-index: 50; position: relative;
+            display: flex;
+            flex-direction: column;
+            border-top: none;
+            padding: 8px 0 0 0;
+            z-index: 50;
+            position: relative;
             transition: height 0.3s ease;
         }
-        .history.expanded { height: min(210px, 30dvh); }
+
+        .history.expanded {
+            height: min(210px, 30dvh);
+        }
+
         body.history-expanded #bingo-ball {
             width: min(55vw, 34dvh, 310px);
             height: min(55vw, 34dvh, 310px);
         }
+
         .history-header {
-            display: flex; align-items: center; justify-content: center;
-            gap: 8px; margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 6px;
         }
-        .history h4 { margin: 0; font-size: 0.9rem; color: #999; text-align: center; }
+
+        .history h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #999;
+            text-align: center;
+        }
+
         .history-size-btn {
-            width: 24px; height: 24px; border-radius: 50%; border: none;
-            background: #f0f0f0; color: #666; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f0f0;
+            color: #666;
+            cursor: pointer;
+            display: block;
             transition: transform 0.2s, background-color 0.2s, color 0.2s;
             padding: 0;
+            line-height: 0;
+            flex-shrink: 0;
         }
-        .history-size-btn:hover { background: #e0e0e0; transform: scale(1.1); color: #333; }
-        .history-size-btn.active { background: #e0f2f1; color: var(--dark-teal); }
-        .history-size-btn svg { width: 15px; height: 15px; fill: currentColor; }
-        .history-wrapper { position: relative; flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
-        
-        .history-items { 
-            display: flex; padding: 0 10px; gap: 12px; overflow-x: auto; overflow-y: hidden; 
-            height: 100%; align-items: center; scroll-behavior: smooth; width: 100%; scrollbar-width: none;
-            direction: ltr !important; 
+
+        .history-size-btn:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+            color: #333;
         }
-        .history-items::-webkit-scrollbar { display: none; }
-        
-        /* History Navigation Arrows - Fixed Position regardless of language */
-        .nav-btn { 
-            position: absolute; top: 50%; transform: translateY(-50%); 
-            width: 35px; height: 35px; border-radius: 50%; border: none; 
-            background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-            color: #555; cursor: pointer; z-index: 60; font-size: 1.2rem; 
-            display: flex; align-items: center; justify-content: center; 
-            transition: opacity 0.3s, transform 0.2s, background-color 0.2s; 
+
+        .history-size-btn.active {
+            background: #e0f2f1;
+            color: var(--dark-teal);
+        }
+
+        .history-size-btn svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .history-wrapper {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .history-items {
+            display: flex;
+            padding: 0 10px;
+            gap: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            height: 100%;
+            align-items: center;
+            scroll-behavior: smooth;
+            width: 100%;
+            scrollbar-width: none;
             direction: ltr !important;
-            opacity: 0; pointer-events: none;
         }
-        .history:hover .nav-btn { opacity: 1; pointer-events: auto; }
-        .nav-btn:hover { background: #f9f9f9; transform: translateY(-50%) scale(1.1); }
-        
+
+        .history-items::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* History Navigation Arrows - Fixed Position regardless of language */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 35px;
+            height: 35px;
+            padding: 0;
+            line-height: 0;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            color: #555;
+            cursor: pointer;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s, transform 0.2s, background-color 0.2s;
+            direction: ltr !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .history:hover .nav-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .nav-btn:hover {
+            background: #f9f9f9;
+            transform: translateY(-50%) scale(1.1);
+        }
+
         /* Static Physical Placement */
-        .prev-btn { left: 10px !important; right: auto !important; } 
-        .next-btn { right: 10px !important; left: auto !important; }
-        
-    .mini-img-container { 
-        min-width: min(60px, 10dvh); 
-        width: min(60px, 10dvh); 
-        height: min(60px, 10dvh); 
-        border-radius: 8px; 
-        overflow: hidden; 
-        background: #ffffff; 
-        border: 2px solid #f0f0f0;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        flex-shrink: 0; 
-        transition: transform 0.2s, width 0.3s ease, height 0.3s ease, min-width 0.3s ease;
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        padding: 3px; 
-        cursor: pointer;
-    }
+        .prev-btn {
+            left: 10px !important;
+            right: auto !important;
+        }
 
-    .history.expanded .mini-img-container {
-        min-width: min(125px, 21dvh);
-        width: min(125px, 21dvh);
-        height: min(125px, 21dvh);
-        border-radius: 12px;
-        padding: 5px;
-    }
+        .next-btn {
+            right: 10px !important;
+            left: auto !important;
+        }
 
-    .mini-img-container:hover { 
-        transform: scale(1.08);
-    }
+        .mini-img-container {
+            min-width: min(60px, 10dvh);
+            width: min(60px, 10dvh);
+            height: min(60px, 10dvh);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            flex-shrink: 0;
+            transition: transform 0.2s, width 0.3s ease, height 0.3s ease, min-width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px;
+            cursor: pointer;
+        }
 
-    #preview-modal .preview-box {
-        background: white;
-        width: min(75vmin, 480px);
-        height: min(75vmin, 480px);
-        border-radius: 14%;
-        padding: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-        border: 4px solid #fff;
-        overflow: hidden;
-        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        cursor: pointer;
-    }
-    #preview-modal .preview-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
+        .history.expanded .mini-img-container {
+            min-width: min(125px, 21dvh);
+            width: min(125px, 21dvh);
+            height: min(125px, 21dvh);
+            border-radius: 12px;
+            padding: 5px;
+        }
 
-        .mini-img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
-        
-        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .mini-img-container:hover {
+            transform: scale(1.08);
+        }
+
+        #preview-modal .preview-box {
+            background: white;
+            width: min(75vmin, 480px);
+            height: min(75vmin, 480px);
+            border-radius: 18px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            border: none;
+            overflow: hidden;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        #preview-modal .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .mini-img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .animate-pop {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
 
 
         .footer-copyright {
-        width: 100%; 
-        flex-shrink: 0;
-        text-align: left; 
-        font-size: 0.7rem; 
-        background: white;
-        color: #95a5a6;
-        padding: 4px 15px;
-        z-index: 50; 
-        font-weight: 400; 
-        direction: ltr;
-        position: relative; 
-    }
+            width: 100%;
+            flex-shrink: 0;
+            text-align: left;
+            font-size: 0.7rem;
+            background: white;
+            color: #95a5a6;
+            padding: 4px 15px;
+            z-index: 50;
+            font-weight: 400;
+            direction: ltr;
+            position: relative;
+        }
 
         /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
-        .info-content { background: white; width: 90%; max-width: 500px; padding: 30px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; text-align: start; }
-        #info-modal .info-content { border: 4px solid var(--dark-teal); }
-        #info-modal h2 { color: var(--dark-teal); font-weight: 900; margin-top: 0; text-align: center; }
-        #reset-modal .info-content { border: 4px solid var(--reset-main); }
-        #reset-modal h2 { color: var(--reset-main); font-weight: 900; margin-top: 0; }
-        .info-content ul { list-style-type: none; padding: 0; } 
-        .info-content li { margin-bottom: 12px; position: relative; padding-right: 0; } 
-        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .info-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            text-align: start;
+            border: none;
+        }
+
+        #info-modal .info-content {
+            border: none;
+        }
+
+        #info-modal h2 {
+            color: var(--dark-teal);
+            font-weight: 600;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        #reset-modal .info-content {
+            border: none;
+        }
+
+        #reset-modal h2 {
+            color: var(--reset-main);
+            font-weight: 600;
+            margin-top: 0;
+        }
+
+        .info-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .info-content li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-right: 0;
+        }
+
         /* Close button placement by language */
-        .close-info { position: absolute; top: 10px; font-size: 2rem; color: #888; cursor: pointer; } 
-        html[dir="rtl"] .close-info { left: 15px; right: auto; } html[dir="ltr"] .close-info { right: 15px; left: auto; }
+        .close-info {
+            position: absolute;
+            top: 10px;
+            font-size: 2rem;
+            color: #888;
+            cursor: pointer;
+        }
+
+        html[dir="rtl"] .close-info {
+            left: 15px;
+            right: auto;
+        }
+
+        html[dir="ltr"] .close-info {
+            right: 15px;
+            left: auto;
+        }
 
         /* Calculator Section */
-        .calc-container { background: #f0f7f7; padding: 15px; border-radius: 12px; margin-top: 20px; border: 1px solid #b2dfdb; position: relative; }
-        .calc-input-group { display: flex; gap: 10px; margin-bottom: 10px; direction: rtl !important; }
-        #calc-players { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Rubik'; text-align: right; }
-        #calc-grid-ref { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Rubik'; direction: ltr; text-align: right; }
-        
+        .calc-container {
+            background: #f0f7f7;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: none;
+            position: relative;
+        }
+
+        .calc-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        #calc-players {
+            flex: 1;
+            min-width: 0;
+            height: 38px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #333;
+            direction: rtl;
+            text-align: right;
+        }
+
+        body[dir="ltr"] #calc-players {
+            direction: ltr;
+            text-align: left;
+        }
+
+        .calc-select-wrapper {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .calc-select-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+            transition: transform 0.25s ease;
+            color: #555;
+        }
+
+        .calc-select-wrapper.open .calc-select-arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        #calc-grid-ref {
+            width: 100%;
+            height: 38px;
+            appearance: none;
+            -webkit-appearance: none;
+            padding: 0 30px 0 12px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #333;
+            pointer-events: none;
+            direction: ltr;
+            text-align: left;
+            text-align-last: left;
+        }
+
+        #calc-grid-ref option {
+            direction: ltr;
+            text-align: left;
+            font-weight: 400;
+        }
+
         /* Calculator Lock Overlay */
         .calc-locked-overlay {
-            position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.85); border-radius:12px;
-            display: none; align-items: center; justify-content: center;
-            font-weight: 900; color: #7f8c8d; font-size: 1.3rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 1.3rem;
             z-index: 5;
         }
-        
-        #calc-result { margin-top: 10px; font-weight: 700; color: #800020; text-align: center; min-height: 20px; line-height: 1.6; }
 
-        .reset-options { display: flex; flex-direction: row; gap: 15px; margin-top: 25px; justify-content: center; width: 100%; }
-        .reset-btn-option { 
-            padding: 12px 10px; flex: 1; border-radius: 15px; border: none; 
-            font-weight: 700; cursor: pointer; font-size: 0.95rem; 
-            transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            background-color: var(--reset-main); color: white; 
+        #calc-result {
+            margin-top: 10px;
+            font-weight: 500;
+            color: #800020;
+            text-align: center;
+            min-height: 20px;
+            line-height: 1.6;
         }
-        .reset-btn-option svg { width: 20px; height: 20px; fill: currentColor; }
-        .reset-btn-option:hover { transform: translateY(-2px); background-color: var(--reset-hover); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
 
-        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; font-size: 2rem; }
-        #toast-notification { visibility: hidden; min-width: 200px; background-color: #34495e; color: #fff; text-align: center; border-radius: 30px; padding: 10px 20px; position: fixed; z-index: 20000; top: 75px; right: 20px; left: auto; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.5s, top 0.5s; }
-        #toast-notification.show { visibility: visible; opacity: 1; top: 85px; }
-        
+        .reset-options {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .reset-btn-option {
+            padding: 12px 18px;
+            flex: 1;
+            max-width: 180px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: var(--reset-main);
+            color: white;
+        }
+
+        .reset-btn-option svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .reset-btn-option:hover {
+            transform: translateY(-2px);
+            background-color: var(--reset-hover);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            font-size: 2rem;
+        }
+
+        #toast-notification {
+            visibility: hidden;
+            background: rgba(255, 255, 255, 0.98);
+            color: #334155;
+            text-align: center;
+            border-radius: 10px;
+            padding: 9px 20px;
+            position: fixed;
+            z-index: 18500;
+            top: 15px;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%) translateY(-28px) scale(0.92);
+            max-width: calc(100vw - 140px);
+            font-size: 0.92rem;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+            opacity: 0;
+            pointer-events: none;
+            will-change: transform, opacity;
+            transition:
+                opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0s linear 0.42s;
+        }
+
+        #toast-notification.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(4px) scale(1);
+            transition:
+                opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.48s cubic-bezier(0.34, 1.56, 0.64, 1),
+                visibility 0s linear 0s;
+        }
+
         /* Caption Toggle Button Active State */
-        #caption-btn { 
-            color: #dbb20c; 
-            background: #f8f3da; 
+        #caption-btn {
+            color: #dbb20c;
+            background: #f8f3da;
         }
 
         #caption-btn.active {
-            color: #dbb20c; 
-            background: #f8f3da; 
-            box-shadow: inset 0 4px 8px rgba(0,0,0,0.15); 
-            transform: translateY(2px);      
+            color: #dbb20c;
+            background: #f8f3da;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(2px);
         }
-
     </style>
 </head>
+
 <body>
 
     <div id="info-modal" class="modal" onclick="closeModal(event, 'info-modal')">
@@ -472,26 +1268,30 @@
             <span class="close-info" onclick="closeModal(null, 'info-modal')">&times;</span>
             <h2 data-lang-key="infoTitle">איך משחקים?</h2>
             <ul id="info-list"></ul>
-            
+
             <div class="calc-container">
                 <div class="calc-locked-overlay" id="calc-overlay" data-lang-key="calcLocked">המשחק פעיל</div>
-                <h4 style="margin: 0 0 10px 0; text-align:center; color: var(--dark-teal);" data-lang-key="calcTitle">🧮 מחשבון תמונות</h4>
+                <h4 style="margin: 0 0 10px 0; text-align:center; color: var(--dark-teal); font-weight: 500;" data-lang-key="calcTitle">🧮
+                    מחשבון תמונות</h4>
                 <div class="calc-input-group">
-                    <select id="calc-grid-ref" onchange="calculateRecommendation()">
-                        <option value="3">3x3 (9)</option>
-                        <option value="4">4x4 (16)</option>
-                        <option value="5">5x5 (25)</option>
-                        <option value="6" selected>6x6 (36)</option>
-                        <option value="7">7x7 (49)</option>
-                        <option value="8">8x8 (64)</option>
-                    </select>
-                    <input type="number" id="calc-players" placeholder="משתתפים" min="1" oninput="calculateRecommendation()">
+                    <div class="calc-select-wrapper" id="calc-select-wrapper">
+                        <select id="calc-grid-ref" onchange="calculateRecommendation()">
+                            <option value="3">3x3 (9)</option>
+                            <option value="4">4x4 (16)</option>
+                            <option value="5">5x5 (25)</option>
+                            <option value="6" selected>6x6 (36)</option>
+                            <option value="7">7x7 (49)</option>
+                            <option value="8">8x8 (64)</option>
+                        </select>
+                        <svg class="calc-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <input type="number" id="calc-players" placeholder="משתתפים" min="1"
+                        oninput="calculateRecommendation()">
                 </div>
                 <div id="calc-result"></div>
-            </div>
-
-            <div style="text-align: center; margin-top: 20px; font-weight: bold; color: #555;">
-                🎉 <span data-lang-key="enjoy">תהנו!</span> 🎉
             </div>
         </div>
     </div>
@@ -503,11 +1303,16 @@
             <p data-lang-key="resetDesc">איך תרצו להמשיך?</p>
             <div class="reset-options">
                 <button id="btn-soft-reset" class="reset-btn-option" onclick="performReset('soft')">
-                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+                    </svg>
                     <span data-lang-key="btnSoft">ערבב מחדש</span>
                 </button>
                 <button class="reset-btn-option" onclick="performReset('hard')">
-                    <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg>
                     <span data-lang-key="btnHard">משחק חדש</span>
                 </button>
             </div>
@@ -515,7 +1320,7 @@
     </div>
 
     <div id="loading-overlay">
-        <div data-lang-key="generating">⏳ מייצר כרטיסים</div> 
+        <div data-lang-key="generating">⏳ מייצר כרטיסים</div>
     </div>
 
     <div id="toast-notification" data-lang-key="loadMsg">יש לטעון תמונות מהכפתור למעלה</div>
@@ -524,53 +1329,86 @@
         <button class="top-btn" id="lang-btn" onclick="toggleLanguage()" title="Switch Language">EN</button>
     </div>
 
-    <button id="menu-toggle-btn" onclick="toggleMenu()" title="תפריט">☰</button>
-    
+    <button id="menu-toggle-btn" onclick="toggleMenu()" title="תפריט">
+        <svg id="menu-icon-bars" viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+        </svg>
+        <svg id="menu-icon-close" class="hidden" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+    </button>
+
     <div class="menu-items-wrapper" id="menu-wrapper">
         <button class="top-btn" id="reset-btn" onclick="openResetModal()" title="Reset">
-             <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+            </svg>
         </button>
 
         <button class="top-btn menu-action-btn" id="fullscreen-btn" onclick="toggleFullScreen()" title="Full Screen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            <svg viewBox="0 0 24 24">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+            </svg>
         </button>
-        
+
         <button class="top-btn menu-action-btn" id="caption-btn" onclick="toggleCaptions()" title="Toggle Captions">
-            <svg viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5V10.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5V10.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5V10.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5V10.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z" />
+            </svg>
         </button>
 
-                <button class="top-btn menu-action-btn" id="pdf-btn" onclick="generateBingoCards()" title="Print PDF">
-            <svg viewBox="0 0 24 24"><path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 12v2H8v-2h8zm2-2v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z"/><circle cx="18" cy="11.5" r="1"/></svg>
+        <button class="top-btn menu-action-btn" id="pdf-btn" onclick="generateBingoCards()" title="Print PDF">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 12v2H8v-2h8zm2-2v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z" />
+                <circle cx="18" cy="11.5" r="1" />
+            </svg>
         </button>
 
-                <button class="top-btn menu-action-btn" id="upload-btn" onclick="document.getElementById('file-input').click()" title="Upload">
-            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        <button class="top-btn menu-action-btn" id="upload-btn" onclick="document.getElementById('file-input').click()"
+            title="Upload">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+            </svg>
         </button>
 
-        <select id="grid-select" class="menu-action-btn" onchange="updateRequirements()">
-            <option value="3">3x3 (9)</option>
-            <option value="4">4x4 (16)</option>
-            <option value="5">5x5 (25)</option>
-            <option value="6" selected>6x6 (36)</option>
-            <option value="7">7x7 (49)</option>
-            <option value="8">8x8 (64)</option>
-        </select>
+        <div class="grid-select-wrapper menu-action-btn" id="grid-select-wrapper">
+            <select id="grid-select" class="menu-action-btn" onchange="updateRequirements()">
+                <option value="3">3x3 (9)</option>
+                <option value="4">4x4 (16)</option>
+                <option value="5">5x5 (25)</option>
+                <option value="6" selected>6x6 (36)</option>
+                <option value="7">7x7 (49)</option>
+                <option value="8">8x8 (64)</option>
+            </select>
+            <span class="grid-select-short" id="grid-select-short">6x6</span>
+            <svg class="grid-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
 
         <button class="top-btn menu-action-btn" id="info-btn" onclick="openModal('info-modal')" title="Info">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+            </svg>
         </button>
     </div>
 
     <div class="game-center">
         <div id="bingo-ball" class="hidden">
             <span id="placeholder-text">?</span>
-            
+
             <div id="image-caption" class="hidden"></div>
-            
+
             <img id="current-image" src="" alt="Selected">
         </div>
         <div id="end-game-message" class="hidden" data-lang-key="congrats"></div>
-        
+
         <div class="modern-button-container">
             <button id="draw-btn" onclick="drawImage()" disabled></button>
         </div>
@@ -581,7 +1419,9 @@
 
     <div id="preview-modal" class="modal" onclick="closePreviewModal()">
         <div class="preview-box">
-            <div id="preview-caption" class="hidden" style="position: absolute; top: 0; background: rgba(142, 156, 176, 0.55); color: white; padding: 10px 25px; border-radius: 0 0 15px 15px; font-weight: 900; font-size: 1.4rem; z-index: 20; width: 100%; text-align: center;"></div>
+            <div id="preview-caption" class="hidden"
+                style="position: absolute; top: 0; background: rgba(142, 156, 176, 0.55); color: white; padding: 10px 25px; border-radius: 0; font-weight: 600; font-size: 1.4rem; z-index: 20; width: 100%; text-align: center;">
+            </div>
             <img id="preview-image" src="" alt="Preview">
         </div>
     </div>
@@ -589,18 +1429,40 @@
     <div class="history" id="history-section">
         <div class="history-header">
             <h4 data-lang-key="history">היסטוריה</h4>
-            <button id="history-size-btn" class="history-size-btn" onclick="toggleHistorySize()" title="הגדל/הקטן היסטוריה">
-                <svg id="history-zoom-in-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zm2.5-4h-2v2H9v-2H7V9h2V7h1v2h2v1z"/></svg>
-                <svg id="history-zoom-out-icon" class="hidden" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"/></svg>
+            <button id="history-size-btn" class="history-size-btn" onclick="toggleHistorySize()"
+                title="הגדל/הקטן היסטוריה">
+                <svg id="history-zoom-in-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11.3" cy="11.3" r="4.3"></circle>
+                    <line x1="14.4" y1="14.4" x2="17.2" y2="17.2"></line>
+                    <line x1="11.3" y1="9.3" x2="11.3" y2="13.3"></line>
+                    <line x1="9.3" y1="11.3" x2="13.3" y2="11.3"></line>
+                </svg>
+                <svg id="history-zoom-out-icon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11.3" cy="11.3" r="4.3"></circle>
+                    <line x1="14.4" y1="14.4" x2="17.2" y2="17.2"></line>
+                    <line x1="9.3" y1="11.3" x2="13.3" y2="11.3"></line>
+                </svg>
             </button>
         </div>
         <div class="history-wrapper">
-            <button class="nav-btn prev-btn" onclick="scrollHistory('left')">&#10094;</button>
+            <button class="nav-btn prev-btn" onclick="scrollHistory('left')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="14.5 18 8.5 12 14.5 6"></polyline>
+                </svg>
+            </button>
             <div class="history-items" id="history-container"></div>
-            <button class="nav-btn next-btn" onclick="scrollHistory('right')">&#10095;</button>
+            <button class="nav-btn next-btn" onclick="scrollHistory('right')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="9.5 18 15.5 12 9.5 6"></polyline>
+                </svg>
+            </button>
         </div>
     </div>
-    
+
     <div class="footer-copyright">
         © 2026 Gal Presil. All rights reserved.
     </div>
@@ -609,20 +1471,20 @@
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let fireworksInterval = null; 
-        
+        let fireworksInterval = null;
+
         const colorfulPastels = [
-            '#e53935', '#43a047', '#1e88e5', '#fdd835', 
-            '#8e24aa', '#fb8c00', '#00acc1', '#ff4081', 
+            '#e53935', '#43a047', '#1e88e5', '#fdd835',
+            '#8e24aa', '#fb8c00', '#00acc1', '#ff4081',
             '#7cb342', '#3949ab', '#00897b', '#d81b60'
         ];
 
         let currentLang = localStorage.getItem('bingoLang') || 'he';
         let availableImages = [];
-        let originalImagePool = []; 
+        let originalImagePool = [];
         let loadedFilenames = new Set();
         let minImagesRequired = 36;
-        let isFirstInteraction = true; 
+        let isFirstInteraction = true;
 
         // ADDED: Track Captions State & Map
         let showCaptions = false;
@@ -632,16 +1494,16 @@
         window.addEventListener('beforeunload', function (e) {
             if (originalImagePool.length > 0) {
                 e.preventDefault();
-                e.returnValue = ''; 
+                e.returnValue = '';
             }
         });
 
-        window.onload = function() {
+        window.onload = function () {
             availableImages = [];
             originalImagePool = [];
             loadedFilenames.clear();
             document.body.dir = currentLang === 'he' ? 'rtl' : 'ltr';
-            
+
             setupSync();
             applyLanguageUI();
             updateRequirements();
@@ -652,26 +1514,92 @@
         // Synchronize grid size between settings and calculator
         function setupSync() {
             const mainGrid = document.getElementById('grid-select');
+            const gridWrapper = document.getElementById('grid-select-wrapper');
             const calcGrid = document.getElementById('calc-grid-ref');
+            const calcWrapper = document.getElementById('calc-select-wrapper');
             const calcResult = document.getElementById('calc-result');
             const calcPlayers = document.getElementById('calc-players');
 
-            mainGrid.addEventListener('change', function() {
+            function buildCustomSelect(selectEl, wrapperEl) {
+                if (!selectEl || !wrapperEl) return null;
+                const dropdown = document.createElement('div');
+                dropdown.className = 'custom-select-dropdown';
+
+                function renderOptions() {
+                    dropdown.innerHTML = '';
+                    Array.from(selectEl.options).forEach(opt => {
+                        const item = document.createElement('div');
+                        item.className = 'custom-select-option' + (opt.value === selectEl.value ? ' selected' : '');
+                        item.textContent = opt.textContent;
+                        item.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            if (selectEl.disabled) return;
+                            selectEl.value = opt.value;
+                            wrapperEl.classList.remove('open');
+                            selectEl.dispatchEvent(new Event('change'));
+                        });
+                        dropdown.appendChild(item);
+                    });
+                }
+
+                renderOptions();
+                wrapperEl.appendChild(dropdown);
+
+                wrapperEl.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    if (selectEl.disabled) return;
+                    const isOpen = wrapperEl.classList.contains('open');
+                    document.querySelectorAll('.grid-select-wrapper.open, .calc-select-wrapper.open').forEach(el => {
+                        el.classList.remove('open');
+                    });
+                    if (!isOpen) {
+                        renderOptions();
+                        wrapperEl.classList.add('open');
+                    }
+                });
+
+                return renderOptions;
+            }
+
+            const refreshMainOptions = buildCustomSelect(mainGrid, gridWrapper);
+            const refreshCalcOptions = buildCustomSelect(calcGrid, calcWrapper);
+
+            document.addEventListener('click', function () {
+                document.querySelectorAll('.grid-select-wrapper.open, .calc-select-wrapper.open').forEach(el => {
+                    el.classList.remove('open');
+                });
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.grid-select-wrapper.open, .calc-select-wrapper.open').forEach(el => {
+                        el.classList.remove('open');
+                    });
+                }
+            });
+
+            mainGrid.addEventListener('change', function () {
+                if (gridWrapper) gridWrapper.classList.remove('open');
                 calcGrid.value = mainGrid.value;
-                if(!document.getElementById('calc-overlay').style.display || document.getElementById('calc-overlay').style.display === 'none') {
+                if (refreshMainOptions) refreshMainOptions();
+                if (refreshCalcOptions) refreshCalcOptions();
+                if (!document.getElementById('calc-overlay').style.display || document.getElementById('calc-overlay').style.display === 'none') {
                     calcResult.innerHTML = '';
-                    if(calcPlayers.value) calculateRecommendation();
+                    if (calcPlayers.value) calculateRecommendation();
                 }
                 updateRequirements();
             });
 
-            calcGrid.addEventListener('change', function() {
+            calcGrid.addEventListener('change', function () {
+                if (calcWrapper) calcWrapper.classList.remove('open');
                 mainGrid.value = calcGrid.value;
-                calculateRecommendation(); 
+                if (refreshMainOptions) refreshMainOptions();
+                if (refreshCalcOptions) refreshCalcOptions();
+                calculateRecommendation();
                 updateRequirements();
             });
 
-            calcPlayers.addEventListener('input', function() {
+            calcPlayers.addEventListener('input', function () {
                 calculateRecommendation();
             });
         }
@@ -691,14 +1619,15 @@
 
         function toggleMenu() {
             const menu = document.getElementById('menu-wrapper');
-            const btn = document.getElementById('menu-toggle-btn');
-            if (menu.classList.contains('open')) {
-                menu.classList.remove('open');
-                btn.innerText = "☰";
-            } else {
-                menu.classList.add('open');
-                btn.innerText = "✕";
+            const barsIcon = document.getElementById('menu-icon-bars');
+            const closeIcon = document.getElementById('menu-icon-close');
+            const isOpen = menu.classList.toggle('open');
+            if (!isOpen) {
+                const gridWrap = document.getElementById('grid-select-wrapper');
+                if (gridWrap) gridWrap.classList.remove('open');
             }
+            barsIcon.classList.toggle('hidden', isOpen);
+            closeIcon.classList.toggle('hidden', !isOpen);
         }
 
         // ADDED: Toggle Captions Function
@@ -706,7 +1635,7 @@
             showCaptions = !showCaptions;
             const btn = document.getElementById('caption-btn');
             const captionEl = document.getElementById('image-caption');
-            
+
             if (showCaptions) {
                 btn.classList.add('active');
                 if (document.getElementById('current-image').style.display === 'block') {
@@ -729,7 +1658,7 @@
         }
 
         function toggleFullScreen() {
-            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
                 enterFullScreen();
             } else {
                 if (document.exitFullscreen) document.exitFullscreen();
@@ -742,10 +1671,10 @@
         // Support Spacebar for drawing
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
-                e.preventDefault(); 
+                e.preventDefault();
                 const btn = document.getElementById('draw-btn');
-                if (!btn.disabled && !btn.classList.contains('hidden') && btn.offsetParent !== null) { 
-                    btn.classList.add('pressed'); 
+                if (!btn.disabled && !btn.classList.contains('hidden') && btn.offsetParent !== null) {
+                    btn.classList.add('pressed');
                     if (!btn.getAttribute('data-running')) {
                         drawImage();
                     }
@@ -766,12 +1695,12 @@
             notes.forEach((freq, i) => {
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
-                oscillator.type = 'sine'; 
+                oscillator.type = 'sine';
                 oscillator.frequency.value = freq;
                 const startTime = now + (i * 0.06);
                 gainNode.gain.setValueAtTime(0, startTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05); 
-                gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5); 
+                gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5);
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 oscillator.start(startTime);
@@ -909,7 +1838,7 @@
 
         function performReset(type) {
             const t = translations[currentLang];
-            
+
             if (fireworksInterval) {
                 clearInterval(fireworksInterval);
                 fireworksInterval = null;
@@ -919,7 +1848,7 @@
             currentImage.style.display = 'none';
             currentImage.src = '';
             placeholderText.style.display = 'block';
-            
+
             // ADDED: Hide Caption on reset
             document.getElementById('image-caption').classList.add('hidden');
 
@@ -928,13 +1857,13 @@
             statusContainer.classList.remove('hidden');
             menuToggleBtn.classList.remove('hidden');
             endGameMessage.classList.add('hidden');
-            
+
             menuWrapper.classList.remove('game-over-mode');
             menuActionBtns.forEach(btn => btn.classList.remove('hidden'));
 
             gridSelect.disabled = false;
             uploadBtn.disabled = false;
-            
+
             document.getElementById('pdf-btn').disabled = false;
             document.getElementById('calc-grid-ref').disabled = false;
             document.getElementById('calc-players').disabled = false;
@@ -944,6 +1873,7 @@
                 availableImages = [...originalImagePool];
                 showToast(t.gameResetSoft);
             } else {
+                originalImagePool.forEach(url => URL.revokeObjectURL(url));
                 availableImages = [];
                 originalImagePool = [];
                 loadedFilenames.clear();
@@ -951,7 +1881,7 @@
                 imageNamesMap.clear();
                 showToast(t.gameResetHard);
             }
-            
+
             updateRequirements();
             closeModal(null, 'reset-modal');
         }
@@ -961,7 +1891,7 @@
             const players = parseInt(document.getElementById('calc-players').value) || 0;
             const t = translations[currentLang];
             const resultDiv = document.getElementById('calc-result');
-            
+
             if (players <= 0) {
                 resultDiv.innerHTML = '';
                 return;
@@ -969,7 +1899,7 @@
 
             const totalCells = gridSize * gridSize;
             const recommended = totalCells + Math.max(5, Math.ceil(players / 3));
-            
+
             resultDiv.innerHTML = `${t.calcRec} <u style="font-size:1.2em; color: #800020;">${recommended}</u> ${t.calcRecImages}<br><span style="font-size:0.8em; font-weight:normal; color:#555">(${t.calcMin}: ${totalCells})</span>`;
         }
 
@@ -982,17 +1912,17 @@
         function applyLanguageUI() {
             document.body.dir = currentLang === 'he' ? 'rtl' : 'ltr';
             langBtn.innerText = currentLang === 'he' ? 'EN' : 'HE';
-            
+
             const keys = document.querySelectorAll('[data-lang-key]');
             keys.forEach(el => {
                 const key = el.getAttribute('data-lang-key');
-                if(translations[currentLang][key]) {
+                if (translations[currentLang][key]) {
                     if (el.children.length === 0 || el.tagName === 'P' || el.tagName === 'SPAN' || el.tagName === 'DIV' || el.tagName === 'H2' || el.tagName === 'H4' || el.tagName === 'BUTTON') {
-                         el.innerHTML = translations[currentLang][key];
+                        el.innerHTML = translations[currentLang][key];
                     } else {
                         const span = el.querySelector('span');
-                        if(span) span.innerText = translations[currentLang][key];
-                        else el.innerHTML = translations[currentLang][key]; 
+                        if (span) span.innerText = translations[currentLang][key];
+                        else el.innerHTML = translations[currentLang][key];
                     }
                 }
             });
@@ -1000,15 +1930,15 @@
             document.getElementById('calc-players').placeholder = currentLang === 'he' ? "משתתפים" : "Players";
 
             const playersVal = document.getElementById('calc-players').value;
-            if(playersVal && playersVal > 0) {
+            if (playersVal && playersVal > 0) {
                 calculateRecommendation();
             }
 
             const elementsToFlip = [statusMsg, drawButton, toast, document.querySelector('.info-content')];
             elementsToFlip.forEach(el => {
-                if(el) {
+                if (el) {
                     el.style.direction = currentLang === 'he' ? 'rtl' : 'ltr';
-                    if(el.classList.contains('info-content')) {
+                    if (el.classList.contains('info-content')) {
                         el.style.textAlign = currentLang === 'he' ? 'right' : 'left';
                     }
                 }
@@ -1026,10 +1956,20 @@
             });
         }
 
+        let toastTimeout = null;
+
         function showToast(text) {
-            if(text) toast.innerText = text; else toast.innerText = translations[currentLang].loadMsg;
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
+            if (text) toast.innerText = text; else toast.innerText = translations[currentLang].loadMsg;
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toast.classList.remove("show");
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    toast.classList.add("show");
+                });
+            });
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3800);
         }
 
         function scrollHistory(side) {
@@ -1040,30 +1980,33 @@
         }
 
         function runBackgroundConfetti() {
-            setInterval(function() {
+            setInterval(function () {
+                if (document.hidden) return;
                 const randomColor = colorfulPastels[Math.floor(Math.random() * colorfulPastels.length)];
                 confetti({
-                    particleCount: 1, 
-                    startVelocity: 0, 
-                    ticks: 300, 
-                    origin: { x: Math.random(), y: -0.05 }, 
-                    colors: [randomColor], 
-                    shapes: ['circle', 'square'], 
-                    gravity: 0.25 + Math.random() * 0.2,
-                    scalar: 0.8 + Math.random() * 0.4,   
-                    drift: (Math.random() - 0.5) * 1.5,
+                    particleCount: 1,
+                    startVelocity: 0,
+                    ticks: 220,
+                    origin: { x: Math.random(), y: -0.05 },
+                    colors: [randomColor],
+                    shapes: ['circle', 'square'],
+                    gravity: 0.3 + Math.random() * 0.2,
+                    scalar: 0.8 + Math.random() * 0.4,
+                    drift: (Math.random() - 0.5) * 1.2,
                     disableForReducedMotion: true
                 });
-            }, 100); 
+            }, 220);
         }
 
         function updateRequirements() {
             const t = translations[currentLang];
             const size = parseInt(gridSelect.value);
+            const shortGridLabel = document.getElementById('grid-select-short');
+            if (shortGridLabel) shortGridLabel.textContent = `${size}x${size}`;
             minImagesRequired = size * size;
             const currentCount = availableImages.length;
             const missing = minImagesRequired - currentCount;
-            
+
             const gameHasBegun = originalImagePool.length > 0 && availableImages.length < originalImagePool.length;
 
             if (originalImagePool.length === 0) {
@@ -1076,48 +2019,55 @@
                 if (currentCount > 0) {
                     drawButton.innerHTML = t.drawBtn;
                     drawButton.disabled = false;
-                    statusMsg.innerText = `${t.statusLeft} ${currentCount} ${t.statusPool}`;
-                    statusMsg.style.color = "#333";
+                    statusMsg.className = 'state-playing';
+                    statusMsg.innerHTML = `<span>${t.statusLeft}</span><span class="status-badge-pill">${currentCount}</span><span>${t.statusPool}</span>`;
                 } else {
                     drawButton.innerText = t.finishBtn;
                     drawButton.disabled = false;
-                    statusMsg.innerText = t.noImages;
+                    statusMsg.className = 'state-empty';
+                    statusMsg.innerHTML = `<span>${t.noImages}</span>`;
                 }
             } else {
                 if (currentCount >= minImagesRequired) {
                     drawButton.innerHTML = t.drawBtn;
-                    if(currentLang === 'en') statusMsg.innerText = `${currentCount} images loaded. Minimum: ${minImagesRequired}. Ready to start!`;
-                    else statusMsg.innerText = `${t.statusHave} ${currentCount} ${t.statusMin} ${minImagesRequired}${t.statusStart}`;
-                    statusMsg.style.color = "#27ae60";
+                    statusMsg.className = 'state-ready';
+                    if (currentLang === 'en') {
+                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>Ready to start!</span>`;
+                    } else {
+                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>אפשר להתחיל!</span>`;
+                    }
                     drawButton.disabled = false;
                 } else {
                     drawButton.innerHTML = t.bingoBtn;
-                    if(currentLang === 'en') statusMsg.innerText = `${currentCount} images loaded. Need ${missing} more.`;
-                    else statusMsg.innerText = `${t.statusHave} ${currentCount} ${t.statusMissing} ${missing}.`;
-                    statusMsg.style.color = "#c0392b";
-                    drawButton.disabled = true; 
+                    statusMsg.className = 'state-missing';
+                    if (currentLang === 'en') {
+                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>Need ${missing} more ${t.images}</span>`;
+                    } else {
+                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>חסרות עוד ${missing} ${t.images}</span>`;
+                    }
+                    drawButton.disabled = true;
                 }
             }
-            
-            if(gameHasBegun) {
-               document.getElementById('pdf-btn').disabled = true;
+
+            if (gameHasBegun) {
+                document.getElementById('pdf-btn').disabled = true;
             } else {
-               document.getElementById('pdf-btn').disabled = false;
+                document.getElementById('pdf-btn').disabled = false;
             }
         }
 
-        fileInput.addEventListener('change', function(e) {
+        fileInput.addEventListener('change', function (e) {
             const files = e.target.files;
             if (files.length > 0) {
                 let addedCount = 0;
                 for (let file of files) {
                     if (loadedFilenames.has(file.name)) continue;
-                    
+
                     loadedFilenames.add(file.name);
                     const url = URL.createObjectURL(file);
                     availableImages.push(url);
-                    originalImagePool.push(url); 
-                    
+                    originalImagePool.push(url);
+
                     // ADDED: Store file name without extension
                     const nameNoExt = file.name.split('.').slice(0, -1).join('.');
                     imageNamesMap.set(url, nameNoExt);
@@ -1126,61 +2076,61 @@
                 }
                 updateRequirements();
                 showToast(`${translations[currentLang].added} ${addedCount} ${translations[currentLang].images}!`);
-                fileInput.value = ''; 
+                fileInput.value = '';
             }
         });
 
         function drawImage() {
             const t = translations[currentLang];
             const btn = document.getElementById('draw-btn');
-            
+
             if (btn.getAttribute('data-running')) return;
             btn.setAttribute('data-running', 'true');
 
             if (availableImages.length === 0) {
-                mainBall.classList.add('hidden'); 
-                drawBtnContainer.classList.add('hidden'); 
-                statusContainer.classList.add('hidden'); 
-                menuToggleBtn.classList.add('hidden'); 
-                
+                mainBall.classList.add('hidden');
+                drawBtnContainer.classList.add('hidden');
+                statusContainer.classList.add('hidden');
+                menuToggleBtn.classList.add('hidden');
+
                 menuWrapper.classList.add('game-over-mode');
                 menuActionBtns.forEach(btn => btn.classList.add('hidden'));
 
-                endGameMessage.innerText = t.congrats; 
-                endGameMessage.classList.remove('hidden'); 
-                
+                endGameMessage.innerText = t.congrats;
+                endGameMessage.classList.remove('hidden');
+
                 fireFireworks();
                 fireworksInterval = setInterval(() => {
                     fireFireworks();
                 }, 2500);
-                
+
                 btn.removeAttribute('data-running');
                 return;
             }
-            
+
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             gridSelect.disabled = true;
             uploadBtn.disabled = true;
             document.getElementById('pdf-btn').disabled = true;
-            
+
             document.getElementById('calc-grid-ref').disabled = true;
             document.getElementById('calc-players').disabled = true;
             document.getElementById('calc-overlay').style.display = 'flex';
 
             mainBall.classList.add('pulsing');
-            
+
             setTimeout(() => {
                 const randomIndex = Math.floor(Math.random() * availableImages.length);
                 const drawnImageSrc = availableImages[randomIndex];
                 availableImages.splice(randomIndex, 1);
-                
-                updateRequirements(); 
-                
+
+                updateRequirements();
+
                 placeholderText.style.display = 'none';
                 currentImage.style.display = 'block';
                 currentImage.src = drawnImageSrc;
-                
+
                 // ADDED: Update & Show Caption
                 const captionEl = document.getElementById('image-caption');
                 captionEl.innerText = imageNamesMap.get(drawnImageSrc) || "";
@@ -1192,15 +2142,15 @@
 
                 mainBall.classList.remove('pulsing');
                 currentImage.classList.remove('animate-pop');
-                void currentImage.offsetWidth; 
+                void currentImage.offsetWidth;
                 currentImage.classList.add('animate-pop');
-                
+
                 addToHistory(drawnImageSrc);
                 fireColoredConfetti();
                 playWinSound();
-                
+
                 btn.removeAttribute('data-running');
-            }, 300); 
+            }, 300);
         }
 
         function addToHistory(imgSrc) {
@@ -1258,7 +2208,7 @@
 
             function randomInRange(min, max) { return Math.random() * (max - min) + min; }
 
-            const interval = setInterval(function() {
+            const interval = setInterval(function () {
                 const timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) {
                     return clearInterval(interval);
@@ -1269,16 +2219,26 @@
             }, 250);
         }
 
-        function loadImage(url) {
+        function loadAndResizeImage(url, maxDim = 320) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-                img.onload = () => resolve(img);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const scale = Math.min(1, maxDim / Math.max(img.width || maxDim, img.height || maxDim));
+                    canvas.width = Math.max(1, Math.round((img.width || maxDim) * scale));
+                    canvas.height = Math.max(1, Math.round((img.height || maxDim) * scale));
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.85));
+                };
                 img.onerror = reject;
                 img.src = url;
             });
         }
 
-async function generateBingoCards() {
+        async function generateBingoCards() {
             const t = translations[currentLang];
             if (availableImages.length < minImagesRequired) { showToast(t.missing); return; }
             const countInput = prompt(t.countPrompt, "5");
@@ -1290,7 +2250,7 @@ async function generateBingoCards() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 const gridSize = parseInt(gridSelect.value);
-                
+
                 const pageW = 210; // רוחב A4
                 const pageH = 297; // גובה A4
                 const squareSize = 170; // גודל הטבלה (מוגדל לעמוד שלם)
@@ -1299,40 +2259,48 @@ async function generateBingoCards() {
                 const startY = (pageH - squareSize) / 2; // מרכוז אנכי מושלם
 
                 const uniquePool = [...availableImages];
-                
+
+                // Pre-load and downscale each unique image once in parallel
+                const cachedDataUrls = new Map();
+                await Promise.all(uniquePool.map(async (url) => {
+                    const dataUrl = await loadAndResizeImage(url, 320);
+                    cachedDataUrls.set(url, dataUrl);
+                }));
+
                 for (let k = 0; k < cardCount; k++) {
-                    // מוסיף עמוד חדש לכל כרטיס, חוץ מהכרטיס הראשון שנוצר אוטומטית
                     if (k > 0) {
                         doc.addPage();
                     }
 
-                    // ערבוב התמונות עבור כל כרטיס
-                    const shuffled = [...uniquePool].sort(() => 0.5 - Math.random());
+                    // Fisher-Yates shuffle
+                    const shuffled = [...uniquePool];
+                    for (let i = shuffled.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                    }
                     const gridSizeSq = gridSize * gridSize;
                     const cardImages = shuffled.slice(0, gridSizeSq);
 
-                    // ציור הרשת והתמונות
                     for (let row = 0; row < gridSize; row++) {
                         for (let col = 0; col < gridSize; col++) {
                             const x = startX + (col * cellSize);
                             const y = startY + (row * cellSize);
-                            
-                            doc.setDrawColor(180); 
+
+                            doc.setDrawColor(180);
                             doc.setLineWidth(0.3);
                             doc.rect(x, y, cellSize, cellSize);
-                            
+
                             const imgIdx = (row * gridSize) + col;
                             if (imgIdx < cardImages.length) {
                                 const imgUrl = cardImages[imgIdx];
-                                const imgObj = await loadImage(imgUrl);
-                                const pad = 1.5; // מרווח פנימי קטן בתוך המשבצת
-                                doc.addImage(imgObj, 'JPEG', x + pad, y + pad, cellSize - (pad * 2), cellSize - (pad * 2));
+                                const imgData = cachedDataUrls.get(imgUrl);
+                                const pad = 1.5;
+                                doc.addImage(imgData, 'JPEG', x + pad, y + pad, cellSize - (pad * 2), cellSize - (pad * 2));
                             }
                         }
                     }
-                    
                 }
-                
+
                 doc.save(`bingo-cards-${gridSize}x${gridSize}.pdf`);
             } catch (err) {
                 console.error(err);
@@ -1344,4 +2312,5 @@ async function generateBingoCards() {
 
     </script>
 </body>
+
 </html>
