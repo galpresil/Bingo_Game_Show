@@ -11,7 +11,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Outfit:wght@700;800;900&family=Rubik:wght@700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -37,7 +37,7 @@
         body {
             font-family: 'Fredoka', sans-serif;
             font-weight: 400;
-            background-color: #eef4fa;
+            background-color: #f3f5f8;
             height: 100dvh;
             width: 100vw;
             display: flex;
@@ -473,21 +473,32 @@
         }
 
         #bingo-ball {
-            width: min(65vw, 48dvh, 420px);
-            height: min(65vw, 48dvh, 420px);
+            width: min(76vw, 58dvh, 490px);
+            height: min(76vw, 58dvh, 490px);
             background: #ffffff;
             border-radius: 18px;
             position: relative;
             z-index: 10;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.14);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
             border: none;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 8px;
             flex-shrink: 1;
-            transition: all 0.3s ease-out;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, width 0.3s ease-out, height 0.3s ease-out, opacity 0.2s ease-out;
+            user-select: none;
+        }
+
+        #bingo-ball.clickable {
+            cursor: pointer;
+        }
+
+        #bingo-ball.clickable:active:not(.pulsing),
+        #bingo-ball.clickable.pressed:not(.pulsing) {
+            transform: scale(0.993);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
 
         /*Caption Style */
@@ -508,8 +519,8 @@
         }
 
         .pulsing {
-            transform: scale(0.92);
-            opacity: 0.7;
+            transform: scale(0.985);
+            opacity: 0.92;
         }
 
         #current-image {
@@ -524,6 +535,29 @@
             color: #e0e0e0;
             font-weight: 600;
             user-select: none;
+            text-align: center;
+        }
+
+        #placeholder-text.ready-prompt {
+            background: linear-gradient(180deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: #0d9488;
+            font-family: 'Rubik', 'Fredoka', sans-serif;
+            font-size: clamp(3rem, 9vmin, 5rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            padding: 8px 20px;
+            filter: drop-shadow(0 3.5px 0 rgba(15, 118, 110, 0.22));
+            animation: drawIdleMove 3.6s ease-in-out infinite;
+        }
+
+        body[dir="ltr"] #placeholder-text.ready-prompt {
+            font-family: 'Outfit', 'Rubik', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.04em;
         }
 
         /* Game End Message */
@@ -535,9 +569,9 @@
             color: var(--dark-teal);
             -webkit-text-stroke: 0;
             text-shadow: none;
-            font-family: 'Fredoka', sans-serif;
+            font-family: 'Rubik', 'Fredoka', sans-serif;
             font-size: clamp(2rem, 7.5vmin, 4.5rem);
-            font-weight: 700;
+            font-weight: 800;
             text-align: center;
             filter: drop-shadow(0 4px 0 rgba(15, 118, 110, 0.22));
             will-change: transform;
@@ -552,7 +586,7 @@
         }
 
         body[dir="ltr"] #end-game-message {
-            font-family: 'Outfit', 'Fredoka', sans-serif;
+            font-family: 'Outfit', 'Rubik', sans-serif;
             font-weight: 900;
             letter-spacing: 0.03em;
         }
@@ -567,7 +601,7 @@
         }
 
         #bingo-ball:not(.hidden)~.modern-button-container {
-            margin-top: 4px;
+            margin-top: 0;
         }
 
         @keyframes drawIdleMove {
@@ -603,39 +637,39 @@
         }
 
         #draw-btn {
-            background: linear-gradient(180deg, #facc15 0%, #eab308 50%, #d97706 100%);
+            background: linear-gradient(180deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            color: #eab308;
+            color: #0d9488;
             border: none;
             outline: none;
             -webkit-text-stroke: 0;
             text-shadow: none;
-            font-family: 'Fredoka', sans-serif;
+            font-family: 'Rubik', 'Fredoka', sans-serif;
             font-size: clamp(2.5rem, 6.2dvh, 3.8rem);
-            font-weight: 700;
+            font-weight: 800;
             line-height: 1.15;
             letter-spacing: 0.02em;
             cursor: pointer;
             padding: 6px 22px;
-            filter: drop-shadow(0 3px 0 rgba(217, 119, 6, 0.22));
+            filter: drop-shadow(0 3px 0 rgba(15, 118, 110, 0.22));
             will-change: transform;
             box-shadow: none;
             transition: transform 0.2s ease;
             transform: translateY(0);
-            animation: drawIdleMove 2.2s ease-in-out infinite;
+            animation: drawIdleMove 3.6s ease-in-out infinite;
         }
 
         body[dir="ltr"] #draw-btn {
-            font-family: 'Outfit', 'Fredoka', sans-serif;
+            font-family: 'Outfit', 'Rubik', sans-serif;
             font-weight: 900;
             -webkit-text-stroke: 0;
             letter-spacing: 0.04em;
         }
 
         #draw-btn:hover:not(:disabled) {
-            filter: drop-shadow(0 3.5px 0 rgba(217, 119, 6, 0.28));
+            filter: drop-shadow(0 3.5px 0 rgba(15, 118, 110, 0.28));
             animation: none;
             transform: translateY(-2px) scale(1.06);
         }
@@ -644,7 +678,7 @@
         #draw-btn.pressed:not(:disabled) {
             animation: none;
             transform: translateY(2px) scale(0.95);
-            filter: drop-shadow(0 1.5px 0 rgba(217, 119, 6, 0.25));
+            filter: drop-shadow(0 1.5px 0 rgba(15, 118, 110, 0.25));
         }
 
         #draw-btn:disabled {
@@ -656,7 +690,7 @@
             text-shadow: none;
             cursor: default;
             font-size: clamp(5.2rem, 15.5vmin, 8.2rem);
-            font-weight: 700;
+            font-weight: 800;
             filter: drop-shadow(0 5px 0 rgba(217, 119, 6, 0.22));
             will-change: transform;
             box-shadow: none;
@@ -686,44 +720,33 @@
         }
 
         #status-msg {
-            background: rgba(255, 255, 255, 0.96);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-weight: 500;
-            color: #334155;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            font-size: clamp(0.88rem, 1.9dvh, 1rem);
+            background: transparent;
+            padding: 2px 8px;
+            border-radius: 0;
+            font-weight: 400;
+            color: #64748b;
+            box-shadow: none;
+            font-size: clamp(0.82rem, 1.75dvh, 0.95rem);
             border: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: color 0.2s ease, background-color 0.2s ease;
+            gap: 5px;
+            letter-spacing: 0.01em;
+            transition: color 0.2s ease;
         }
 
         .status-badge-pill {
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 0.85em;
+            padding: 0;
+            border-radius: 0;
+            font-weight: 400;
+            font-size: 1em;
             letter-spacing: 0.02em;
             direction: ltr;
             display: inline-block;
-        }
-
-        #status-msg.state-missing .status-badge-pill {
-            background: #fef3c7;
-            color: #b45309;
-        }
-
-        #status-msg.state-ready .status-badge-pill {
-            background: #d1fae5;
-            color: #047857;
-        }
-
-        #status-msg.state-playing .status-badge-pill {
-            background: #ccfbf1;
-            color: #0f766e;
+            background: transparent;
+            color: inherit;
+            border: none;
         }
 
         /* --- History Section --- */
@@ -746,8 +769,8 @@
         }
 
         body.history-expanded #bingo-ball {
-            width: min(55vw, 34dvh, 310px);
-            height: min(55vw, 34dvh, 310px);
+            width: min(62vw, 40dvh, 360px);
+            height: min(62vw, 40dvh, 360px);
         }
 
         .history-header {
@@ -981,7 +1004,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.6);
-            z-index: 10000;
+            z-index: 25000;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(3px);
@@ -1417,7 +1440,7 @@
     </div>
 
     <div class="game-center">
-        <div id="bingo-ball" class="hidden">
+        <div id="bingo-ball" class="hidden" onclick="handleBallClick()">
             <span id="placeholder-text">?</span>
 
             <div id="image-caption" class="hidden"></div>
@@ -1448,7 +1471,7 @@
             <h4 data-lang-key="history">היסטוריה</h4>
             <button id="history-size-btn" class="history-size-btn" onclick="toggleHistorySize()"
                 title="הגדל/הקטן היסטוריה">
-                <svg id="history-zoom-in-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                <svg id="history-zoom-in-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11.3" cy="11.3" r="4.3"></circle>
                     <line x1="14.4" y1="14.4" x2="17.2" y2="17.2"></line>
@@ -1456,7 +1479,7 @@
                     <line x1="9.3" y1="11.3" x2="13.3" y2="11.3"></line>
                 </svg>
                 <svg id="history-zoom-out-icon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11.3" cy="11.3" r="4.3"></circle>
                     <line x1="14.4" y1="14.4" x2="17.2" y2="17.2"></line>
                     <line x1="9.3" y1="11.3" x2="13.3" y2="11.3"></line>
@@ -1465,14 +1488,14 @@
         </div>
         <div class="history-wrapper">
             <button class="nav-btn prev-btn" onclick="scrollHistory('left')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
                     stroke-linejoin="round">
                     <polyline points="14.5 18 8.5 12 14.5 6"></polyline>
                 </svg>
             </button>
             <div class="history-items" id="history-container"></div>
             <button class="nav-btn next-btn" onclick="scrollHistory('right')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
                     stroke-linejoin="round">
                     <polyline points="9.5 18 15.5 12 9.5 6"></polyline>
                 </svg>
@@ -1524,7 +1547,6 @@
             setupSync();
             applyLanguageUI();
             updateRequirements();
-            showToast();
             runBackgroundConfetti();
         };
 
@@ -1685,13 +1707,19 @@
             }
         }
 
+        function handleBallClick() {
+            if (mainBall.classList.contains('clickable') && !mainBall.classList.contains('hidden')) {
+                drawImage();
+            }
+        }
+
         // Support Spacebar for drawing
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
                 const btn = document.getElementById('draw-btn');
-                if (!btn.disabled && !btn.classList.contains('hidden') && btn.offsetParent !== null) {
-                    btn.classList.add('pressed');
+                if (mainBall.classList.contains('clickable') && !mainBall.classList.contains('hidden')) {
+                    mainBall.classList.add('pressed');
                     if (!btn.getAttribute('data-running')) {
                         drawImage();
                     }
@@ -1701,6 +1729,7 @@
 
         document.addEventListener('keyup', (e) => {
             if (e.code === 'Space') {
+                mainBall.classList.remove('pressed');
                 const btn = document.getElementById('draw-btn');
                 btn.classList.remove('pressed');
             }
@@ -1737,7 +1766,7 @@
                     "<strong>בחרו גודל לוח:</strong> בחרו את גודל לוח הבינגו הרצוי.",
                     "<strong>העלו תמונות שונות:</strong> לחצו על הכפתור הכחול והעלו מגוון תמונות. מומלץ להעלות יותר תמונות מכמות המשבצות בכרטיסייה.",
                     "<strong>צרו כרטיסים:</strong> לחצו על הכפתור הכתום להדפסת כרטיסי PDF.",
-                    "<strong>משחקים!</strong> לחצו על הכפתור הגדול (או על <strong>מקש הרווח</strong>) להגרלת תמונה.",
+                    "<strong>משחקים!</strong> לחצו על מסגרת התמונה (או על <strong>מקש הרווח</strong>) להגרלת תמונה.",
                     "<strong>טיפ:</strong> מומלץ לעבוד בתצוגה מלאה."
                 ],
                 enjoy: "תהנו!",
@@ -1781,7 +1810,7 @@
                     "<strong>Choose Grid Size:</strong> Select the bingo grid size.",
                     "<strong>Upload Different Images:</strong> Click the blue button to upload a variety of photos. Recommendation: Upload more photos than grid cells in the card.",
                     "<strong>Create Cards:</strong> Click the orange button to print PDF cards.",
-                    "<strong>Play!</strong> Click the big button (or press <strong>SPACE</strong>) to draw an image.",
+                    "<strong>Play!</strong> Click the image frame (or press <strong>SPACE</strong>) to draw an image.",
                     "<strong>Tip:</strong> Full screen mode recommended."
                 ],
                 enjoy: "Enjoy!",
@@ -2033,36 +2062,59 @@
             }
 
             if (gameHasBegun) {
+                drawButton.classList.add('hidden');
+                mainBall.classList.add('clickable');
                 if (currentCount > 0) {
-                    drawButton.innerHTML = t.drawBtn;
-                    drawButton.disabled = false;
                     statusMsg.className = 'state-playing';
-                    statusMsg.innerHTML = `<span>${t.statusLeft}</span><span class="status-badge-pill">${currentCount}</span><span>${t.statusPool}</span>`;
+                    statusMsg.onclick = null;
+                    statusMsg.style.cursor = 'default';
+                    if (currentLang === 'en') {
+                        statusMsg.innerHTML = `<span>${currentCount} images left</span>`;
+                    } else {
+                        statusMsg.innerHTML = `<span>נותרו ${currentCount} תמונות</span>`;
+                    }
                 } else {
-                    drawButton.innerText = t.finishBtn;
-                    drawButton.disabled = false;
                     statusMsg.className = 'state-empty';
-                    statusMsg.innerHTML = `<span>${t.noImages}</span>`;
+                    statusMsg.onclick = handleBallClick;
+                    statusMsg.style.cursor = 'pointer';
+                    if (currentLang === 'en') {
+                        statusMsg.innerHTML = `<span>${t.noImages} · Click to finish</span>`;
+                    } else {
+                        statusMsg.innerHTML = `<span>${t.noImages} · לחצו לסיום</span>`;
+                    }
                 }
             } else {
+                statusMsg.onclick = null;
+                statusMsg.style.cursor = 'default';
                 if (currentCount >= minImagesRequired) {
-                    drawButton.innerHTML = t.drawBtn;
+                    drawButton.classList.add('hidden');
+                    mainBall.classList.add('clickable');
+                    placeholderText.classList.add('ready-prompt');
+                    placeholderText.innerText = t.drawBtn;
                     statusMsg.className = 'state-ready';
                     if (currentLang === 'en') {
-                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>Ready to start!</span>`;
+                        statusMsg.innerHTML = `<span>${currentCount} images ready</span>`;
                     } else {
-                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>אפשר להתחיל!</span>`;
+                        statusMsg.innerHTML = `<span>${currentCount} תמונות מוכנות</span>`;
                     }
                     drawButton.disabled = false;
                 } else {
+                    mainBall.classList.remove('clickable');
+                    placeholderText.classList.remove('ready-prompt');
+                    placeholderText.innerText = '?';
                     drawButton.innerHTML = t.bingoBtn;
+                    drawButton.disabled = true;
+                    if (currentCount > 0) {
+                        drawButton.classList.add('hidden');
+                    } else {
+                        drawButton.classList.remove('hidden');
+                    }
                     statusMsg.className = 'state-missing';
                     if (currentLang === 'en') {
-                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>Need ${missing} more ${t.images}</span>`;
+                        statusMsg.innerHTML = `<span>Need ${missing} more ${t.images}</span><span class="status-badge-pill">(${currentCount} / ${minImagesRequired})</span>`;
                     } else {
-                        statusMsg.innerHTML = `<span class="status-badge-pill">${currentCount} / ${minImagesRequired}</span><span>חסרות עוד ${missing} ${t.images}</span>`;
+                        statusMsg.innerHTML = `<span>חסרות עוד ${missing} ${t.images}</span><span class="status-badge-pill">(${currentCount} / ${minImagesRequired})</span>`;
                     }
-                    drawButton.disabled = true;
                 }
             }
 
